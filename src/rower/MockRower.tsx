@@ -1,8 +1,8 @@
 "use client"
-import React, { useState, useEffect } from "react";
+import IRower from './interface.tsx'
 
 
-export default class MockRower {
+export default class MockRower implements IRower{
 
   constructor(){
     this._instantaneousVelocity = 0;
@@ -13,7 +13,7 @@ export default class MockRower {
 
     const interval = setInterval(() => {
       const t = new Date().getTime();
-      that._instantaneousVelocity = 2 + 1.5 * Math.sin(t/1000);
+      that._instantaneousVelocity = 4.0 + 0.8 * Math.sin(t/1000);
     }, 20);
 
   }

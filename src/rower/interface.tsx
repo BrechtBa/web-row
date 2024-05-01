@@ -1,0 +1,3 @@
+interface IRower {
+  getInstantaneousVelocity() : number;
+}

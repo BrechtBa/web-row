@@ -1,3 +1,7 @@
 :root {
   --orb-radius: 20;
 }
+
+#OverviewGraph {
+  stroke: rgba(var(--primary-text-rgb), 0.5)
+}

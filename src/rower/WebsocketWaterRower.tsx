@@ -1,8 +1,7 @@
 "use client"
-import React, { useState, useEffect } from "react";
+import IRower from './interface.tsx'
 
-
-export default class WebsocketWaterRower {
+export default class WebsocketWaterRower implements IRower {
 
   constructor(uri: string="ws://localhost:9899/"){
     this.uri = uri;
