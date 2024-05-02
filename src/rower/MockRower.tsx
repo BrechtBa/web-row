@@ -1,11 +1,12 @@
 "use client"
-import IRower from './interface.tsx'
+import Rower from './interface'
 
 
-export default class MockRower implements IRower{
+export default class MockRower implements Rower{
+  instantaneousVelocity: number;
 
   constructor(){
-    this._instantaneousVelocity = 0;
+    this.instantaneousVelocity = 0;
 
     const that = this;
 
@@ -13,13 +14,13 @@ export default class MockRower implements IRower{
 
     const interval = setInterval(() => {
       const t = new Date().getTime();
-      that._instantaneousVelocity = 4.0 + 0.8 * Math.sin(t/1000);
+      that.instantaneousVelocity = 4.0 + 0.8 * Math.sin(t/1000);
     }, 20);
 
   }
 
   getInstantaneousVelocity() : number {
-      return this._instantaneousVelocity;
+      return this.instantaneousVelocity;
   }
 
 

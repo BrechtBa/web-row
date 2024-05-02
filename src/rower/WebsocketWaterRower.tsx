@@ -1,7 +1,10 @@
 "use client"
-import IRower from './interface.tsx'
+import Rower from './interface'
 
-export default class WebsocketWaterRower implements IRower {
+export default class WebsocketWaterRower implements Rower {
+  uri: string;
+  ws: WebSocket | null;
+  instantaneousVelocity: number;
 
   constructor(uri: string="ws://localhost:9899/"){
     this.uri = uri;
@@ -9,7 +12,7 @@ export default class WebsocketWaterRower implements IRower {
 
     this.openWebsocket();
 
-    this._instantaneousVelocity = 0;
+    this.instantaneousVelocity = 0;
   }
   openWebsocket() {
     this.ws = new WebSocket(this.uri);
@@ -35,7 +38,9 @@ export default class WebsocketWaterRower implements IRower {
   }
 
   sendToWebsocket(msg: string) {
-    this.ws.send(msg);
+    if(this.ws !== null ){
+      this.ws.send(msg);
+    }
   }
 
   parseWebsocketMessage(msg: string) {
@@ -53,12 +58,12 @@ export default class WebsocketWaterRower implements IRower {
       const pulseCount = Number("0x"+msg.substring(1))
       const damping = 0.98;
       const s = 5;
-      this._instantaneousVelocity = damping*this._instantaneousVelocity + (1-damping) * pulseCount / s;
+      this.instantaneousVelocity = damping*this.instantaneousVelocity + (1-damping) * pulseCount / s;
     }
 
   }
   getInstantaneousVelocity() : number {
-      return this._instantaneousVelocity;
+      return this.instantaneousVelocity;
   }
 
 
