@@ -1,10 +1,10 @@
-import IRower from './interface.tsx'
+import Rower from './interface'
 
-import MockRower from './MockRower.tsx'
-import WebsocketWaterRower from './WebsocketWaterRower.tsx'
+import MockRower from './MockRower'
+import WebsocketWaterRower from './WebsocketWaterRower'
 
 
-export default function getRower(): IRower {
+export default function getRower(): Rower {
   const rower = new MockRower();
 //   const rower = new WebsocketWaterRower();
 

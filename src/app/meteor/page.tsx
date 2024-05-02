@@ -1,15 +1,14 @@
 "use client"
 import React, { useState, useEffect, useRef } from "react";
 
-import getRower from '../../rower/factory.tsx'
-import { IntensityZone } from '../../domain/domain.tsx'
-import { MeteorWorkoutDefSegment, MeteorWorkoutDef, MeteorWorkout,
-  getIntensityZoneInstantaneousVelocityBounds, getWorkoutInstantaneousVelocityBoundsTrace} from './domain.tsx'
+import getRower from '../../rower/factory'
+import { IntensityZone, TimeDelta, range } from '../../domain/domain'
+import { MeteorWorkoutDefSegment, MeteorWorkoutDef, MeteorWorkout, MeteorWorkoutSegment } from './domain'
 
 import styles from "./page.module.css";
 
 
-function calculateSmoothPath(data, k) {
+function calculateSmoothPath(data: number[][], k?: number) {
   if (k == null) k = 1.0;
 
   var size = data.length;
@@ -44,7 +43,8 @@ function calculateSmoothPath(data, k) {
 
 
 
-function MeteorTrace({instantaneousVelocity, meteorTrace, meteorDistance, distanceToPixels, velocityToPixels}) {
+function MeteorTrace({instantaneousVelocity, meteorTrace, meteorDistance, distanceToPixels, velocityToPixels}: 
+                     {instantaneousVelocity: number, meteorTrace: number[][], meteorDistance: number, distanceToPixels: (d: number) => number, velocityToPixels: (v: number) => number}) {
   const ORB_RADIUS = 20;
 
   let fullMeteorTrace = meteorTrace;
@@ -83,7 +83,7 @@ function MeteorTrace({instantaneousVelocity, meteorTrace, meteorDistance, distan
 }
 
 
-function VerticalGrid({x}) {
+function VerticalGrid({x}: {x: number}) {
   const left = `${x}px`;
   return (
     <div style={{width: "100px", height: "100%", position: "absolute", left: left, bottom: 0}}>
@@ -96,12 +96,32 @@ function VerticalGrid({x}) {
 }
 
 
-function MeteorBounds({workout, intensityZoneSplits, meteorDistance, distanceToPixels, velocityToPixels, meteorBoundsTrace}) {
+function MeteorBounds({meteorDistance, distanceToPixels, velocityToPixels, meteorBoundsTrace}: 
+                      {meteorDistance: number,  distanceToPixels: (d: number) => number, velocityToPixels: (c: number) => number, meteorBoundsTrace: Array<{distance: number, min: number, max: number}>}) {
 
-  const filteredTrace = workout.meteorBoundsTrace.filter(v => Math.abs(v[0] - meteorDistance) < 40);
-  let fullBoundsTrace = []
-  fullBoundsTrace = fullBoundsTrace.concat(filteredTrace.map(v => [v[0], v[1].min]));
-  fullBoundsTrace = fullBoundsTrace.concat(filteredTrace.reverse().map(v => [v[0], v[1].max]));
+  let filledTrace = [...meteorBoundsTrace]                      
+  // fill up screen
+  if(meteorDistance - 20 < filledTrace[0].distance){
+    let fillBeforeTrace = range(meteorDistance - 20, Math.min(meteorDistance + 20, filledTrace[0].distance), 0.5).map((d) => {
+      return {distance: d, min: filledTrace[0].min, max: filledTrace[0].max}
+    })
+    filledTrace = fillBeforeTrace.concat(filledTrace)
+  }
+
+  let index = filledTrace.length-1;
+  if(meteorDistance + 20 > filledTrace[index].distance){
+    let fillAfterTrace = range(Math.max(meteorDistance - 20, filledTrace[index].distance+0.5) , meteorDistance + 20, 0.5).map((d) => {
+      return {distance: d, min: filledTrace[index].min, max: filledTrace[index].max}
+    })
+    filledTrace = filledTrace.concat(fillAfterTrace);
+  }
+
+  const filteredTrace = filledTrace.filter(v => Math.abs(v.distance - meteorDistance) < 40);
+
+  let fullBoundsTrace: Array<Array<number>> = [];
+
+  fullBoundsTrace = fullBoundsTrace.concat(filteredTrace.map(v => [v.distance, v.min]));
+  fullBoundsTrace = fullBoundsTrace.concat(filteredTrace.reverse().map(v => [v.distance, v.max]));
 
   const path = calculateSmoothPath(fullBoundsTrace.map(
       p => [distanceToPixels(p[0]), velocityToPixels(p[1])]));
@@ -123,33 +143,38 @@ function MeteorBounds({workout, intensityZoneSplits, meteorDistance, distanceToP
   )
 }
 
-function GameArea({workout, meteorDistance, instantaneousVelocity, meteorTrace}) {
+function GameArea({workout, meteorDistance, instantaneousVelocity, meteorTrace, meteorBoundsTrace}: 
+                  {workout: MeteorWorkout, meteorDistance: number, instantaneousVelocity: number, meteorTrace: Array<Array<number>>, meteorBoundsTrace: Array<{distance: number, min: number, max: number}>}) {
   const screenWidthDistance = 10;
   const gridWidthDistance = 1;
 
   // get the gameAreaSize
-  const gameAreaRef = useRef();
+  const gameAreaRef = useRef <HTMLDivElement | null> (null);
+
   const [gameAreaSize, setGameAreaSize] = useState({
     width: 1000,
     height: 800,
   });
+
   useEffect(() => {
-    setGameAreaSize({
-      width: gameAreaRef.current.offsetWidth,
-      height: gameAreaRef.current.offsetHeight
-    });
+    if( gameAreaRef.current !== null ){
+      setGameAreaSize({
+        width: gameAreaRef.current.offsetWidth,
+        height: gameAreaRef.current.offsetHeight
+      });
+    }
   }, [gameAreaRef]);
 
   // functions to determine the position in the game area for distance and velocity
-  const distanceToPixels = (d) => {
+  const distanceToPixels = (d: number) => {
     return (d - meteorDistance + 0.5*screenWidthDistance)/screenWidthDistance * gameAreaSize.width;
   }
-  const velocityToPixels = (v) => {
+  const velocityToPixels = (v: number) => {
     return gameAreaSize.height - (v - workout.meteorVelocityMin) / (workout.meteorVelocityMax - workout.meteorVelocityMin) * gameAreaSize.height;
   }
 
-  const gridDistance = parseInt((meteorDistance - 0.5*screenWidthDistance) / gridWidthDistance) * gridWidthDistance
-  const gridDistances = Array(11).fill().map((x,i)=> gridDistance + i * gridWidthDistance)
+  const gridDistance = Math.floor((meteorDistance - 0.5*screenWidthDistance) / gridWidthDistance) * gridWidthDistance
+  const gridDistances = Array.from({length: 11}, (_, i) => i).map((x,i)=> gridDistance + i * gridWidthDistance)
 
   return (
     <div ref={gameAreaRef} style={{width: "100%", height: "100%", position: "relative"}}>
@@ -158,11 +183,7 @@ function GameArea({workout, meteorDistance, instantaneousVelocity, meteorTrace})
           <VerticalGrid key={d} x={distanceToPixels(d)}/>
       ))}
 
-      <MeteorBounds workout={workout} meteorDistance={meteorDistance} distanceToPixels={distanceToPixels} velocityToPixels={velocityToPixels}/>
-
-      { workout.activeSegment !== null && (
-        <div></div>
-      )}
+      <MeteorBounds meteorDistance={meteorDistance} distanceToPixels={distanceToPixels} velocityToPixels={velocityToPixels} meteorBoundsTrace={meteorBoundsTrace}/>
 
       <MeteorTrace meteorTrace={meteorTrace} instantaneousVelocity={instantaneousVelocity}  meteorDistance={meteorDistance} distanceToPixels={distanceToPixels} velocityToPixels={velocityToPixels}/>
 
@@ -171,14 +192,14 @@ function GameArea({workout, meteorDistance, instantaneousVelocity, meteorTrace})
 }
 
 
-function WorkoutOverviewGraph({workout, currentDuration}) {
-  const segmentHeight = (segment) => {
-    return 50 - parseInt(segment.intensityZone) * 10
+function WorkoutOverviewGraph({workout, time}: {workout: MeteorWorkout, time: TimeDelta}) {
+  const segmentHeight = (segment: MeteorWorkoutSegment): number => {
+    return 50 - segment.intensityZone * 10
   }
   const totalWorkoutDuration = workout.totalDuration;
 
-  const segmentLength = (segment) => {
-    return segment.duration / totalWorkoutDuration * 1000 ;
+  const segmentLength = (segment: MeteorWorkoutSegment): number => {
+    return segment.duration.timeDeltaMs / totalWorkoutDuration.timeDeltaMs * 1000 ;
   }
   const calculatePath = (workout: MeteorWorkout): string => {
 
@@ -210,15 +231,37 @@ function WorkoutOverviewGraph({workout, currentDuration}) {
 }
 
 
+function SegmentIntervalStats({activeSegmentIndex, totalSegments, timeRemaining}: {activeSegmentIndex: number, totalSegments: number, timeRemaining: TimeDelta}){
+
+  return (
+    <div style={{display: "flex", flexDirection: "row", justifyContent: "center"}} className={styles.segmentStats}>
+      <div className={styles.segmentNumber}>
+        {activeSegmentIndex > -1 && (
+          <span>{activeSegmentIndex + 1} / {totalSegments}</span>
+        )}
+      </div>
+
+      <div className={styles.segmentTitle}>
+        Interval
+      </div>
+      <div className={styles.segmentTimeRemaining}>
+        {activeSegmentIndex > -1 && (
+          timeRemaining.formatMinutesSeconds()
+        )}
+      </div>
+    </div>
+  );
+}
+
 const rower = getRower();
 
 const workout = new MeteorWorkout(
   new MeteorWorkoutDef([
-    new MeteorWorkoutDefSegment(5*1000, IntensityZone.Paddle),
-    new MeteorWorkoutDefSegment(10*1000, IntensityZone.Steady),
-    new MeteorWorkoutDefSegment(10*1000, IntensityZone.Race),
-    new MeteorWorkoutDefSegment(5*1000, IntensityZone.Sprint),
-    new MeteorWorkoutDefSegment(5*1000, IntensityZone.Paddle),
+    new MeteorWorkoutDefSegment(new TimeDelta(5*1000), IntensityZone.Paddle),
+    new MeteorWorkoutDefSegment(new TimeDelta(10*1000), IntensityZone.Steady),
+    new MeteorWorkoutDefSegment(new TimeDelta(10*1000), IntensityZone.Race),
+    new MeteorWorkoutDefSegment(new TimeDelta(5*1000), IntensityZone.Sprint),
+    new MeteorWorkoutDefSegment(new TimeDelta(5*1000), IntensityZone.Paddle),
   ]),
   {
     [IntensityZone.Paddle]: 500 / 3.0 * 1000,
@@ -233,9 +276,7 @@ export default function Page() {
 
   const dt = 40;
 
-  const [instantaneousVelocity, setInstantaneousVelocity] = useState(0);
-  const [meteorTrace, setMeteorTrace] = useState([[0, 0]]);
-  const [meteorDistance, setMeteorDistance] = useState(0);
+  const [meteorData, setMeteorData] = useState(workout.getInitialData());
 
 
   useEffect(() => {
@@ -244,20 +285,15 @@ export default function Page() {
 
   // start the ui update loops
   useEffect(() => {
-    const t0 = new Date().getTime();
-
-    const fastInterval = setInterval(() => {
+    const frameRefreshInterval = setInterval(() => {
       const t = new Date();
 
-      workout.update(t, rower);
-
-      setInstantaneousVelocity(workout.instantaneousVelocity);
-      setMeteorDistance(workout.meteorDistance);
-      setMeteorTrace(workout.meteorTrace);
+      const newMeteorData = workout.update(t, rower);
+      setMeteorData(newMeteorData);
     }, dt);
 
     return () => {
-      clearInterval(fastInterval);
+      clearInterval(frameRefreshInterval);
     }
   }, []);
 
@@ -270,10 +306,10 @@ export default function Page() {
         </div>
         <div style={{flexGrow: 1, display: "flex", flexDirection: "column"}}>
             <div>
-              <WorkoutOverviewGraph workout={workout} />
+              <WorkoutOverviewGraph workout={workout} time={meteorData.time}/>
             </div>
             <div>
-              middle
+              <SegmentIntervalStats activeSegmentIndex={meteorData.activeSegment.index} totalSegments={meteorData.totalSegments} timeRemaining={meteorData.activeSegment.timeRemaining} />
             </div>
         </div>
         <div style={{width: "15em"}}>
@@ -284,9 +320,10 @@ export default function Page() {
       <div style={{width: "100%", flexGrow: 1, position: "relative"}}>
         <GameArea
             workout={workout}
-            meteorDistance={meteorDistance}
-            instantaneousVelocity={instantaneousVelocity}
-            meteorTrace={meteorTrace}/>
+            meteorDistance={meteorData.meteorDistance}
+            instantaneousVelocity={meteorData.instantaneousVelocity}
+            meteorTrace={meteorData.meteorTrace}
+            meteorBoundsTrace={workout.meteorBoundsTrace}/>
       </div>
       <div style={{display: "flex", height: "10em"}}>
         Footer

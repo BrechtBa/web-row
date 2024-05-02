@@ -1,7 +1,23 @@
-:root {
-  --orb-radius: 20;
+#OverviewGraph {
+  stroke: rgba(var(--primary-text-rgb), 0.5);
 }
 
-#OverviewGraph {
-  stroke: rgba(var(--primary-text-rgb), 0.5)
+
+.segmentStats {
+  font-size: 1.5em;
+}
+
+.segmentNumber {
+  color: rgba(var(--important-rgb), 1.0);
+}
+
+.segmentTitle {
+  color: rgba(var(--primary-text-rgb), 1.0);
+  text-transform: uppercase;
+  margin-left: 1em;
+  margin-right: 1em;
+}
+
+.segmentTimeRemaining {
+  color: rgba(var(--important-rgb), 1.0);
 }

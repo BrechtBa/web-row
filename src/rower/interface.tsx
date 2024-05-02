@@ -1,3 +1,3 @@
-interface IRower {
+export default interface Rower {
   getInstantaneousVelocity() : number;
 }
