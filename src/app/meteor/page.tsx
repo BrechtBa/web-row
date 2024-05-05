@@ -1,9 +1,10 @@
 "use client"
 import React, { useState, useEffect, useRef } from "react";
-
+import { useRouter } from 'next/navigation'
+ 
 import getRower from '../../rower/factory'
 import { IntensityZone, TimeDelta, range } from '../../domain/domain'
-import { MeteorWorkoutDefSegment, MeteorWorkoutDef, MeteorWorkout, MeteorWorkoutSegment } from './domain'
+import { MeteorWorkoutDefSegment, MeteorWorkoutDef, MeteorWorkout, MeteorWorkoutSegment, MeteorWorkoutDefTarget, MeteorWorkoutTarget } from './domain'
 
 import styles from "./page.module.css";
 
@@ -60,22 +61,22 @@ function MeteorTrace({instantaneousVelocity, meteorTrace, meteorDistance, distan
     <div style={{width: "100%", height: "100%", position: "absolute"}}>
       <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <linearGradient id="Gradient1" x1="1" x2="0.6" y1="0" y2="0">
-            <stop offset="0%" stopColor="rgba(var(--important-rgb), 1)" />
-            <stop offset="100%" stopColor="rgba(var(--important-rgb), 0)"/>
+          <linearGradient id="Gradient1" x1="1" x2="0.6" y1="0" y2="0" className={styles.meteorTraceGradient}>
+            <stop offset="0%" stopColor="var(--stop-color-0)"/>
+            <stop offset="100%" stopColor="var(--stop-color-1)"/>
           </linearGradient>
-          <radialGradient id="OrbRadialGradient">
-            <stop offset="0%" stopColor="rgba(var(--foreground-rgb), 0.5)"/>
-            <stop offset="100%" stopColor="rgba(var(--foreground-rgb), 0.0)"/>
+          <radialGradient id="OrbRadialGradient" className={styles.meteorOrbHaloGradient}>
+            <stop offset="0%" stopColor="var(--stop-color-0)"/>
+            <stop offset="100%" stopColor="var(--stop-color-1)"/>
           </radialGradient>
         </defs>
 
-        <circle r={2*ORB_RADIUS} cx={distanceToPixels(meteorDistance)} cy={velocityToPixels(instantaneousVelocity)} fill="url(#OrbRadialGradient)" />
+        <circle cx={distanceToPixels(meteorDistance)} cy={velocityToPixels(instantaneousVelocity)} fill="url(#OrbRadialGradient)" className={styles.meteorOrbHalo} />
 
-        <path stroke="url(#Gradient1)" strokeWidth={1.8*ORB_RADIUS} fill="none" d={path} strokeLinecap="butt" />
-        <path stroke="rgba(var(--important-rgb), 1)" strokeWidth="3" fill="none" d={path} />
+        <path stroke="url(#Gradient1)" fill="none" d={path} strokeLinecap="butt" className={styles.meteorTraceHalo}/>
+        <path fill="none" d={path} className={styles.meteorTrace}/>
 
-        <circle r={ORB_RADIUS} cx={distanceToPixels(meteorDistance)} cy={velocityToPixels(instantaneousVelocity)} fill="rgba(var(--foreground-rgb), 1)" />
+        <circle cx={distanceToPixels(meteorDistance)} cy={velocityToPixels(instantaneousVelocity)} className={styles.meteorOrb} />
 
       </svg>
     </div>
@@ -143,8 +144,35 @@ function MeteorBounds({meteorDistance, distanceToPixels, velocityToPixels, meteo
   )
 }
 
-function GameArea({workout, meteorDistance, instantaneousVelocity, meteorTrace, meteorBoundsTrace}: 
-                  {workout: MeteorWorkout, meteorDistance: number, instantaneousVelocity: number, meteorTrace: Array<Array<number>>, meteorBoundsTrace: Array<{distance: number, min: number, max: number}>}) {
+function Target({distance, velocity, points, caught, distanceToPixels, velocityToPixels}: 
+                {distance: number, velocity: number, points: number, caught: boolean, distanceToPixels: (d: number) => number, velocityToPixels: (c: number) => number}){
+
+  return (
+    <div style={{width: "100%", height: "100%", position: "absolute"}}>
+      <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="radialGradient2" className={styles.targetHaloGradient}>
+            <stop offset="0%" stopColor="var(--stop-color-0)"/>
+            <stop offset="100%" stopColor="var(--stop-color-1)"/>
+          </radialGradient>
+        </defs>
+
+          <circle cx={distanceToPixels(distance)} cy={velocityToPixels(velocity)} fill="url(#radialGradient2)" className={styles.targetHalo} />
+          
+          <circle cx={distanceToPixels(distance)} cy={velocityToPixels(velocity)} className={styles.targetCircle} />
+
+          {!caught && (
+            <text x={distanceToPixels(distance)} y={velocityToPixels(velocity)} className={styles.targetPoints}>+{points}</text>
+          )}
+
+      </svg>
+    </div>
+  );
+}
+
+function GameArea({workout, meteorDistance, instantaneousVelocity, meteorTrace, meteorBoundsTrace, targets}: 
+                  {workout: MeteorWorkout, meteorDistance: number, instantaneousVelocity: number, meteorTrace: Array<Array<number>>, 
+                    meteorBoundsTrace: Array<{distance: number, min: number, max: number}>, targets: Array<MeteorWorkoutTarget>}) {
   const screenWidthDistance = 10;
   const gridWidthDistance = 1;
 
@@ -185,6 +213,10 @@ function GameArea({workout, meteorDistance, instantaneousVelocity, meteorTrace, 
 
       <MeteorBounds meteorDistance={meteorDistance} distanceToPixels={distanceToPixels} velocityToPixels={velocityToPixels} meteorBoundsTrace={meteorBoundsTrace}/>
 
+      {targets.filter(target => Math.abs(target.meteorDistance - meteorDistance) < 30).map(target => (
+        <Target key={target.meteorDistance} distance={target.meteorDistance} velocity={target.meteorVelocity} points={target.points} caught={target.caught} distanceToPixels={distanceToPixels} velocityToPixels={velocityToPixels}/>
+      ))}
+
       <MeteorTrace meteorTrace={meteorTrace} instantaneousVelocity={instantaneousVelocity}  meteorDistance={meteorDistance} distanceToPixels={distanceToPixels} velocityToPixels={velocityToPixels}/>
 
     </div>
@@ -198,13 +230,15 @@ function WorkoutOverviewGraph({workout, time}: {workout: MeteorWorkout, time: Ti
   }
   const totalWorkoutDuration = workout.totalDuration;
 
-  const segmentLength = (segment: MeteorWorkoutSegment): number => {
-    return segment.duration.timeDeltaMs / totalWorkoutDuration.timeDeltaMs * 1000 ;
+  const segmentLength = (duration: TimeDelta): number => {
+    return duration.timeDeltaMs / totalWorkoutDuration.timeDeltaMs * 1000 ;
   }
-  const calculatePath = (workout: MeteorWorkout): string => {
 
-    let d = "";
-    let x1 = 0;
+  const calculatePath = (workout: MeteorWorkout, time?: TimeDelta): string => {
+
+    let timeDeltaMs: number = 0
+    let d: string = "";
+    let x1: number = 0;
     for (var i = 0; i < workout.segments.length; i +=1) {
       if( i == 0 ) {
         d += " M"
@@ -212,9 +246,20 @@ function WorkoutOverviewGraph({workout, time}: {workout: MeteorWorkout, time: Ti
       else {
         d += " L"
       }
-      let x2 = x1 + segmentLength(workout.segments[i]);
+
       let y = segmentHeight(workout.segments[i]);
-      d += ` ${x1}, ${y} L ${x2}, ${y}`;
+
+      let x2 = x1 + segmentLength(workout.segments[i].duration);
+
+      if(time === undefined || time.timeDeltaMs > timeDeltaMs + workout.segments[i].duration.timeDeltaMs){
+        d += ` ${x1}, ${y} L ${x2}, ${y}`;
+        timeDeltaMs += workout.segments[i].duration.timeDeltaMs;
+      }
+      else {
+        x2 = x1 + segmentLength(new TimeDelta(time.timeDeltaMs - timeDeltaMs));
+        d += ` ${x1}, ${y} L ${x2}, ${y}`;
+        return d;
+      }
       x1 = x2;
     }
     return d;
@@ -225,23 +270,51 @@ function WorkoutOverviewGraph({workout, time}: {workout: MeteorWorkout, time: Ti
       <svg width="100%" viewBox="0 0 1000 50" xmlns="http://www.w3.org/2000/svg">
         <path id="OverviewGraph" stroke="rgba(var(--primary-text-rgb), 0.5)" strokeWidth="2px" strokeOpacity="1" fill="none"
            d={calculatePath(workout)} />
+        <path id="OverviewGraph" stroke="rgba(var(--important-rgb), 1.0)" strokeWidth="3px" strokeOpacity="1" fill="none"
+           d={calculatePath(workout, time)} />
       </svg>
     </div>
   )
 }
 
+function CurrentScore({score}: {score: number}) {
+
+  return (
+    <div style={{display: "flex", flexDirection: "row", justifyContent: "left"}}>
+       <div className={styles.title} style={{marginRight: "1em"}}>
+        Current Score
+       </div>
+       <div className={styles.score}>
+        {score}
+       </div> 
+    </div>
+  );
+}
+function HighScore({score}: {score: number}) {
+
+  return (
+    <div style={{display: "flex", flexDirection: "row", justifyContent: "right"}}>
+       <div className={styles.title} style={{marginRight: "1em"}}>
+        High Score
+       </div>
+       <div className={styles.score}>
+        {score}
+       </div> 
+    </div>
+  );
+}
 
 function SegmentIntervalStats({activeSegmentIndex, totalSegments, timeRemaining}: {activeSegmentIndex: number, totalSegments: number, timeRemaining: TimeDelta}){
 
   return (
-    <div style={{display: "flex", flexDirection: "row", justifyContent: "center"}} className={styles.segmentStats}>
+    <div style={{display: "flex", flexDirection: "row", justifyContent: "center"}}>
       <div className={styles.segmentNumber}>
         {activeSegmentIndex > -1 && (
           <span>{activeSegmentIndex + 1} / {totalSegments}</span>
         )}
       </div>
 
-      <div className={styles.segmentTitle}>
+      <div className={styles.title} style={{marginLeft: "1em", marginRight: "1em"}}>
         Interval
       </div>
       <div className={styles.segmentTimeRemaining}>
@@ -253,15 +326,38 @@ function SegmentIntervalStats({activeSegmentIndex, totalSegments, timeRemaining}
   );
 }
 
+function TimeRemaining({timeRemaining}: {timeRemaining: TimeDelta}) {
+
+
+  return (
+    <div style={{display: "flex", flexDirection: "column", justifyContent: "flex-end"}}>
+      <div className={styles.title + " " + styles.segmentTitle} style={{textAlign: "right"}}>Remaining</div>
+      <div className={styles.timeRemaining} style={{textAlign: "right"}}>{timeRemaining.formatMinutesSeconds()}</div>
+    </div>
+  )
+}
+
 const rower = getRower();
 
 const workout = new MeteorWorkout(
   new MeteorWorkoutDef([
-    new MeteorWorkoutDefSegment(new TimeDelta(5*1000), IntensityZone.Paddle),
-    new MeteorWorkoutDefSegment(new TimeDelta(10*1000), IntensityZone.Steady),
-    new MeteorWorkoutDefSegment(new TimeDelta(10*1000), IntensityZone.Race),
-    new MeteorWorkoutDefSegment(new TimeDelta(5*1000), IntensityZone.Sprint),
-    new MeteorWorkoutDefSegment(new TimeDelta(5*1000), IntensityZone.Paddle),
+    new MeteorWorkoutDefSegment(new TimeDelta(5*1000), IntensityZone.Paddle, [
+      {time: new TimeDelta(5*1000), target: new MeteorWorkoutDefTarget(1)}
+    ]),
+    new MeteorWorkoutDefSegment(new TimeDelta(10*1000), IntensityZone.Steady, [
+      {time: new TimeDelta(5*1000), target: new MeteorWorkoutDefTarget(2)},
+      {time: new TimeDelta(8*1000), target: new MeteorWorkoutDefTarget(2)}
+    ]),
+    new MeteorWorkoutDefSegment(new TimeDelta(10*1000), IntensityZone.Race, [
+      {time: new TimeDelta(5*1000), target: new MeteorWorkoutDefTarget(3)},
+      {time: new TimeDelta(8*1000), target: new MeteorWorkoutDefTarget(3)}
+    ]),
+    new MeteorWorkoutDefSegment(new TimeDelta(5*1000), IntensityZone.Sprint, [
+      {time: new TimeDelta(5*1000), target: new MeteorWorkoutDefTarget(4)}
+    ]),
+    new MeteorWorkoutDefSegment(new TimeDelta(10*1000), IntensityZone.Paddle, [
+      {time: new TimeDelta(8*1000), target: new MeteorWorkoutDefTarget(1)}
+    ]),
   ]),
   {
     [IntensityZone.Paddle]: 500 / 3.0 * 1000,
@@ -274,33 +370,45 @@ const workout = new MeteorWorkout(
 
 export default function Page() {
 
-  const dt = 40;
-
+  const dt = 20;
+  const router = useRouter()
   const [meteorData, setMeteorData] = useState(workout.getInitialData());
-
 
   useEffect(() => {
     workout.start();
   }, []);
 
-  // start the ui update loops
+  // start the ui update loop
   useEffect(() => {
-    const frameRefreshInterval = setInterval(() => {
-      const t = new Date();
+    let frameRefreshTimer: ReturnType<typeof setTimeout> | null = null
 
+    const frameRefresh = () => {
+      const t = new Date();
+  
       const newMeteorData = workout.update(t, rower);
+
+      if(newMeteorData.time.timeDeltaMs > newMeteorData.duration.timeDeltaMs + 2000){
+        router.push("/");
+      }
+
       setMeteorData(newMeteorData);
-    }, dt);
+
+      frameRefreshTimer = setTimeout(() => {
+        frameRefresh();
+      }, dt)
+    }
+    frameRefresh();
 
     return () => {
-      clearInterval(frameRefreshInterval);
+      if(frameRefreshTimer !== null) {
+        clearTimeout(frameRefreshTimer);
+      }
     }
-  }, []);
-
+  }, [router]);
 
   return (
     <main style={{width: "100%", height: "100%", display: "flex", flexDirection: "column"}}>
-      <div style={{display: "flex", height: "10em", flexDirection: "row"}}>
+      <div style={{display: "flex", height: "10em", flexDirection: "row", marginTop: "1em", marginLeft: "1em", marginRight: "1em"}}>
         <div style={{width: "15em"}}>
           left
         </div>
@@ -308,12 +416,14 @@ export default function Page() {
             <div>
               <WorkoutOverviewGraph workout={workout} time={meteorData.time}/>
             </div>
-            <div>
+            <div style={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
+              <CurrentScore score={meteorData.score}/>
               <SegmentIntervalStats activeSegmentIndex={meteorData.activeSegment.index} totalSegments={meteorData.totalSegments} timeRemaining={meteorData.activeSegment.timeRemaining} />
+              <HighScore score={0}/>
             </div>
         </div>
         <div style={{width: "15em"}}>
-          right
+          <TimeRemaining timeRemaining={meteorData.timeRemaining}/>
         </div>
       </div>
 
@@ -323,12 +433,12 @@ export default function Page() {
             meteorDistance={meteorData.meteorDistance}
             instantaneousVelocity={meteorData.instantaneousVelocity}
             meteorTrace={meteorData.meteorTrace}
-            meteorBoundsTrace={workout.meteorBoundsTrace}/>
+            meteorBoundsTrace={workout.meteorBoundsTrace}
+            targets={meteorData.targets}/>
       </div>
       <div style={{display: "flex", height: "10em"}}>
         Footer
       </div>
-
     </main>
   );
 }

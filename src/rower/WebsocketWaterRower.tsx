@@ -14,7 +14,7 @@ export default class WebsocketWaterRower implements Rower {
 
     this.instantaneousVelocity = 0;
   }
-  openWebsocket() {
+  openWebsocket() {    
     this.ws = new WebSocket(this.uri);
 
     const that = this;
@@ -44,7 +44,6 @@ export default class WebsocketWaterRower implements Rower {
   }
 
   parseWebsocketMessage(msg: string) {
-    console.log(msg);
     if(msg === "PING") {
 
     }
@@ -56,9 +55,12 @@ export default class WebsocketWaterRower implements Rower {
     }
     else if(msg.startsWith("P")) {
       const pulseCount = Number("0x"+msg.substring(1))
-      const damping = 0.98;
-      const s = 5;
+      const damping = 0.99;
+      const s = 2.5;
       this.instantaneousVelocity = damping*this.instantaneousVelocity + (1-damping) * pulseCount / s;
+    }
+    else {
+      console.log(msg);
     }
 
   }

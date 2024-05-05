@@ -3,19 +3,34 @@ import { IntensityZone, IntensityZoneSplits, TimeDelta } from '../../domain/doma
 
 import Rower from '../../rower/interface'
 
+export class MeteorWorkoutDefTarget {
+  points: number
+
+  constructor(points: number){
+    this.points = points;
+  }
+}
+
 
 export class MeteorWorkoutDefSegment {
 
   duration: TimeDelta;
   intensityZone: IntensityZone;
+  targets: Array<{time: TimeDelta, target: MeteorWorkoutDefTarget}>
 
-  constructor (duration: TimeDelta, intensityZone: IntensityZone) {
+  constructor (duration: TimeDelta, intensityZone: IntensityZone, targets: Array<{time: TimeDelta, target: MeteorWorkoutDefTarget}>) {
     this.duration = duration;
     this.intensityZone = intensityZone;
+    this.targets = targets;
   }
 
+  getTimeDeltaMeteorDistance(timeDelta: TimeDelta): number {
+    return getMeteorVelocity(this.intensityZone) * timeDelta.timeDeltaMs / 1000;
+  }
+
+
   getMeteorDistance(): number {
-    return getMeteorVelocity(this.intensityZone) * this.duration.timeDeltaMs / 1000;
+    return this.getTimeDeltaMeteorDistance(this.duration)
   }
 
 }
@@ -86,6 +101,7 @@ interface ActiveSegmentData {
 
 
 interface MeteorData {
+  frameRate: number;
   meteorDistance: number;
   meteorTrace: Array<Array<number>>;
   instantaneousVelocity: number;
@@ -94,6 +110,9 @@ interface MeteorData {
   timeRemaining: TimeDelta;
   totalSegments: number;
   activeSegment: ActiveSegmentData;
+  targets: Array<MeteorWorkoutTarget>;
+  targetsCaught: number;
+  score: number;
 }
 
 
@@ -132,6 +151,24 @@ export class MeteorWorkoutSegment {
   }
 }
 
+
+export class MeteorWorkoutTarget {
+  meteorDistance: number;
+  meteorVelocityBounds: {min: number, max: number};
+  meteorVelocity: number;
+  points: number;
+  caught: boolean;
+
+  constructor(meteorDistance: number, meteorVelocityBounds: {min: number, max: number}, points: number) {
+    this.meteorDistance = meteorDistance;
+    this.meteorVelocityBounds = meteorVelocityBounds;
+    this.meteorVelocity = 0.5*meteorVelocityBounds.min + 0.5*meteorVelocityBounds.max;
+    this.points = points;
+    this.caught = false;
+  }
+
+}
+
 export class MeteorWorkout {
   workout: MeteorWorkoutDef;
   intensityZoneSplits: IntensityZoneSplits;
@@ -141,8 +178,10 @@ export class MeteorWorkout {
   meteorVelocityMin: number;
   meteorVelocityMax: number;
   meteorBoundsTrace: Array<{distance: number, min: number, max: number}>;
+  targets: Array<MeteorWorkoutTarget>;
 
   startDate: Date | null;
+  lastUpdateDate: Date;
   meteorTrace: Array<Array<number>>;
   meteorHistory: Array<{time: TimeDelta, velocity: number}>;
 
@@ -154,6 +193,7 @@ export class MeteorWorkout {
     this.totalDuration = this.workout.getTotalDuration()
 
     this.startDate = null;
+    this.lastUpdateDate = new Date();
 
     this.meteorTrace = [[0, 0]];
     this.meteorHistory = [{time: new TimeDelta(0), velocity: 0}]
@@ -163,10 +203,13 @@ export class MeteorWorkout {
     );
     this.meteorVelocityMin = getIntensityZoneInstantaneousVelocityBounds(IntensityZone.Paddle, intensityZoneSplits).min;
     this.meteorVelocityMax = getIntensityZoneInstantaneousVelocityBounds(IntensityZone.Sprint, intensityZoneSplits).max;
+    this.targets = this._getTargets(this.segments);
+
   }
 
   getInitialData(): MeteorData {
     return {
+      frameRate: 0,
       meteorDistance: 0,
       meteorTrace: [[0, 0]],
       instantaneousVelocity: 0,
@@ -178,13 +221,20 @@ export class MeteorWorkout {
         index: -1,
         duration: new TimeDelta(0),
         timeRemaining: new TimeDelta(0),
-      }
+      },
+      targets: [],
+      targetsCaught: 0,
+      score: 0,
     }
 
   }
 
   start() {
     this.startDate = new Date();
+    this.meteorTrace = [[0, 0]];
+    this.meteorHistory = [{time: new TimeDelta(0), velocity: 0}];
+    this.segments = this._makeSegments(this.workout, this.intensityZoneSplits);
+    this.targets = this._getTargets(this.segments);
   }
 
   update(now: Date, rower: Rower): MeteorData {
@@ -196,9 +246,12 @@ export class MeteorWorkout {
     let meteorVelocity = 0;
     let meteorDistance = 0;
 
+    let frameRate = 1000/(now.getTime() - this.lastUpdateDate.getTime())
+    this.lastUpdateDate = now;
+
     if(this.startDate !== null){
       time = new TimeDelta(now.getTime() - this.startDate.getTime());
-
+      
       meteorDistance = this._getMeteorDistance(time)
       activeSegmentIndex = this._getActiveSegmentIndex(time);
 
@@ -210,10 +263,17 @@ export class MeteorWorkout {
         meteorVelocity = getMeteorVelocity()
       }
 
+      // update targets
+      this.targets.filter(target => !target.caught).forEach(target => {
+        if(this._checkTargetCaught(target, meteorDistance, instantaneousVelocity)) {
+          target.caught = true;
+        }
+      });
+
       // update meteor trace
-      if(meteorDistance - this.meteorTrace[this.meteorTrace.length-1][0] > 0.2){
+      if(meteorDistance - this.meteorTrace[this.meteorTrace.length-1][0] > 0.5){
         this.meteorTrace.push([meteorDistance, instantaneousVelocity]);
-        this.meteorTrace = this.meteorTrace.slice(-40);
+        this.meteorTrace = this.meteorTrace.filter(v => v[0] > meteorDistance - 10);
       }
 
       // update history
@@ -222,19 +282,26 @@ export class MeteorWorkout {
       }
     }
 
+    let targetsCaught = this.targets.filter(target => target.caught).length
+    let score = this.targets.reduce((accumulator: number, target: MeteorWorkoutTarget) => accumulator + (target.caught ? target.points : 0), 0)
+
     return {
+      frameRate: frameRate,
       meteorDistance: meteorDistance,
       instantaneousVelocity: instantaneousVelocity,
       meteorTrace: this.meteorTrace,
       duration: this.totalDuration,
       time: time,
-      timeRemaining: this.totalDuration.subtract(time),
+      timeRemaining: new TimeDelta(Math.max(0, this.totalDuration.timeDeltaMs - time.timeDeltaMs)),
       totalSegments: this.workout.segments.length,
       activeSegment: {
         index: activeSegmentIndex,
         duration: activeSegment !== null ? activeSegment.duration : new TimeDelta(0),
-        timeRemaining: activeSegment !== null ? activeSegment.startTime.add(activeSegment.duration).subtract(time) : new TimeDelta(0),
-      }
+        timeRemaining: activeSegment !== null ? new TimeDelta(Math.max(0, activeSegment.startTime.timeDeltaMs + activeSegment.duration.timeDeltaMs - time.timeDeltaMs)) : new TimeDelta(0),
+      },
+      targets: this.targets,
+      targetsCaught: targetsCaught,
+      score: score,
     };
   }
 
@@ -284,17 +351,6 @@ export class MeteorWorkout {
       );
       segmentStartDistance += segments[i].meteorDistance;
     }
-
-    // bounds = bounds.concat(
-    //   Array.from({length: 20}, (_, i) => i + 1).map((i) => {
-    //     return {
-    //       distance: bounds[bounds.length - 1].distance + i*20,
-    //       min: bounds[bounds.length - 1].min,
-    //       max: bounds[bounds.length - 1].max,
-    //     };
-    //   })
-    // );
-    // console.log(bounds);
     
     return bounds;
   }
@@ -308,14 +364,16 @@ export class MeteorWorkout {
     let max = previousBounds.max;
     let v = 0;
 
-    const delta = 20;
+    const transferTime = 5;
+    let transferDistance = 0;
 
     let bounds = []
     for (var t = 0; t < segment.duration.timeDeltaMs; t += 200) {
       distance = meteorVelocity * t / 1000
+      transferDistance =  meteorVelocity * transferTime;
 
-      if( distance < delta ) {
-        v = 0.5 - 0.5*Math.cos(Math.PI * distance / delta);
+      if( distance < transferDistance ) {
+        v = 0.5 - 0.5*Math.cos(Math.PI * distance / transferDistance);
         min = previousBounds.min + v * (newBounds.min - previousBounds.min);
         max = previousBounds.max + v * (newBounds.max - previousBounds.max);
       }
@@ -326,5 +384,27 @@ export class MeteorWorkout {
       bounds.push({distance: distance + startDistance, min: min, max: max})
     }
     return bounds;
+  }
+
+  _getTargets(segments: Array<MeteorWorkoutSegment>): Array<MeteorWorkoutTarget> {
+    let targets: Array<MeteorWorkoutTarget> = [];
+    for(var i = 0; i < segments.length; i += 1) {
+      let velocityBounds = getIntensityZoneInstantaneousVelocityBounds(segments[i].intensityZone, this.intensityZoneSplits)
+      
+      let newTargets: Array<MeteorWorkoutTarget> = segments[i].segment.targets.map(target => new MeteorWorkoutTarget(
+        segments[i].meteorStartDistance + segments[i].segment.getTimeDeltaMeteorDistance(target.time),
+        velocityBounds,
+        target.target.points
+      ))
+
+      targets = targets.concat(newTargets)
+    }
+    return targets;
+  }
+
+  _checkTargetCaught(target: MeteorWorkoutTarget, meteorDistance: number, meteorVelocity: number){
+    return Math.abs(target.meteorDistance - meteorDistance) < 0.5 && 
+      meteorVelocity >= target.meteorVelocityBounds.min && 
+      meteorVelocity < target.meteorVelocityBounds.max;
   }
 }

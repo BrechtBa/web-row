@@ -5,8 +5,10 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  applicationName: "WebRow",
   title: "WebRow",
   description: "Rowing web app",
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({
