@@ -375,6 +375,7 @@ export default function Page() {
   const [meteorData, setMeteorData] = useState(workout.getInitialData());
 
   useEffect(() => {
+    rower.start();
     workout.start();
   }, []);
 

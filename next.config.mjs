@@ -13,7 +13,6 @@ const withSerwist = withSerwistInit({
   swDest: "public/sw.js",
   reloadOnOnline: true,
   disable: process.env.NODE_ENV === "development", // to disable pwa in development
-  // ... other options
 });
 
 export default withSerwist(nextConfig);
