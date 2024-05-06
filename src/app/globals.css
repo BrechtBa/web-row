@@ -5,13 +5,12 @@
     "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace", "Source Code Pro",
     "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
 
-  --foreground-rgb: 255, 255, 255;
-
-  --background-start-rgb: 23, 26, 36;
-  --background-end-rgb: 23, 26, 36;
+  --background-start-rgb: 23, 18, 36;
+  --background-end-rgb: 48, 32, 34;
+  --paper-rgb: 7, 9, 24;
 
   --primary-text-rgb: 245, 245, 245;
-  --secondary-text-rgb: 23, 26, 36;
+  --secondary-text-rgb: 105, 105, 105;
 
   --foreground-rgb: 255, 255, 255;
   --important-rgb: 225, 141, 51;

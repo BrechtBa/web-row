@@ -10,13 +10,13 @@ export default class WebsocketWaterRower implements Rower {
     this.uri = uri;
     this.ws = null;
 
-    
-
     this.instantaneousVelocity = 0;
   }
 
   start(): void {
-    this.openWebsocket();
+    if(this.ws === null) {
+      this.openWebsocket();
+    } 
   }
 
   openWebsocket() {    
