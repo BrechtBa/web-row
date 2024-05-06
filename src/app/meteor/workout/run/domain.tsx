@@ -1,7 +1,7 @@
 
-import { IntensityZone, IntensityZoneSplits, TimeDelta } from '../../../domain/domain'
-import {MeteorWorkoutTargetDefinition, MeteorWorkoutIntervalDefinition, MeteorWorkoutDefinition } from '../domain'
-import Rower from '../../../rower/interface'
+import { IntensityZone, IntensityZoneSplits, TimeDelta } from '../../../../domain/domain'
+import {MeteorWorkoutTargetDefinition, MeteorWorkoutIntervalDefinition, MeteorWorkoutDefinition } from '../../domain'
+import Rower from '../../../../rower/interface'
 
 
 function getMeteorVelocity(zone?: IntensityZone) {

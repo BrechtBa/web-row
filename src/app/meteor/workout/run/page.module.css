@@ -70,3 +70,7 @@
   text-anchor: middle;
   alignment-baseline: middle;
 }
+
+.startWorkoutButton {
+  background-color: rgba(var(--primary-button-rgb), 1.0);
+}
