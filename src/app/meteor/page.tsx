@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Unstable_Grid2';
 
-import {  MeteorWorkoutDefinition } from '../../domain/meteor';
+import { MeteorWorkoutData } from '@/domain/meteor';
 import { getMeteorWorkoutRepository } from '@/workoutRepository/factory';
 
 import { WorkoutChart } from './components';
@@ -11,17 +11,17 @@ import { WorkoutChart } from './components';
 import styles from "./page.module.css";
 
 
-function WorkoutCard({workout}: {workout: MeteorWorkoutDefinition}){
+function WorkoutCard({workout}: {workout: MeteorWorkoutData}){
  
   const router = useRouter();
   const href = `/meteor/workout?workout=${workout.workoutId}`;
 
   return (
     <div>
-      <Paper className={styles.paper} style={{cursor: "pointer"}} onClick={() => router.push(href)}>
+      <div className={styles.paper} style={{cursor: "pointer"}} onClick={() => router.push(href)}>
         <div style={{position: "relative"}}>
           <div className={styles.workoutChart} >
-            <WorkoutChart workout={workout}/>
+            <WorkoutChart workout={workout.workoutDefinition}/>
           </div>
           <div className={styles.workoutInfo} style={{position: "absolute", bottom: 0, left: 0}}>
             <div className={styles.workoutTitle}>
@@ -37,12 +37,12 @@ function WorkoutCard({workout}: {workout: MeteorWorkoutDefinition}){
           <Grid container spacing={2}>
             <Grid xs={6}>
               <span className={styles.propertyName}>Duration: </span>
-              <span className={styles.propertyValue}>{workout.getTotalDuration().formatMinutesSeconds()}</span>
+              <span className={styles.propertyValue}>{workout.workoutDefinition.getTotalDuration().formatMinutesSeconds()}</span>
             </Grid>
           </Grid>
         </div>
         
-      </Paper>
+      </div>
     </div>
   )
 }
@@ -54,7 +54,7 @@ const workoutRepository = getMeteorWorkoutRepository();
 
 export default function Page() {
   return (
-    <main style={{width: "100%", height: "100%", display: "flex", flexDirection: "column", padding: "1em"}}>
+    <main style={{width: "100%", display: "flex", flexDirection: "column", padding: "1em"}}>
       <div>
         <Grid container spacing={2}>
           {workoutRepository.listWorkouts().map(workout => (

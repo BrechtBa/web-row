@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 import getRower from '@/rower/factory';
 import { IntensityZone, TimeDelta, range } from '@/domain/intensityZone';
+import { MeteorWorkoutData } from '@/domain/meteor';
 import { getMeteorWorkoutRepository } from '@/workoutRepository/factory';
 import { MeteorWorkout, MeteorWorkoutSegment, MeteorWorkoutTarget, MeteorData } from './domain';
 
@@ -359,6 +360,7 @@ export default function Page() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const [workoutData, setWorkoutData] = useState<MeteorWorkoutData | null>(null);
   const [workout, setWorkout] = useState<MeteorWorkout | null>(null);
   const [meteorData, setMeteorData] = useState<MeteorData>(MeteorWorkout.getInitialData());
 
@@ -369,11 +371,10 @@ export default function Page() {
   useEffect(() => {
     const workoutId = searchParams.get('workout');
     if(workoutId !== null) {
-      const workoutDefinition = workoutRepository.getWorkout(workoutId);
-      if( workoutDefinition !== undefined ){
-        setWorkout(
-          new MeteorWorkout(workoutDefinition, intensityZoneSplits)
-        );
+      const workoutData = workoutRepository.getWorkout(workoutId);
+      if( workoutData !== undefined ){
+        setWorkoutData(workoutData);
+        setWorkout(new MeteorWorkout(workoutData.workoutDefinition, intensityZoneSplits));
       }
     }
   }, [searchParams]);
@@ -390,7 +391,7 @@ export default function Page() {
         const newMeteorData = workout.update(t, rower);
   
         if(newMeteorData.time.timeDeltaMs > newMeteorData.duration.timeDeltaMs + 2000){
-          router.push("/meteor");
+          router.push(workoutData !== null ? `/meteor/workout?workout=${workoutData.workoutId}`: "/meteor");
         }
   
         setMeteorData(newMeteorData);
@@ -414,7 +415,7 @@ export default function Page() {
     <main style={{width: "100%", height: "100%"}}>
         <div style={{width: "100%", height: "100%", display: "flex", flexDirection: "column"}}>
           <div style={{display: "flex", flexDirection: "row", marginTop: "1em", marginLeft: "1em", marginRight: "1em", marginBottom: "1em"}}>
-            <div style={{width: "15em"}}>
+            <div style={{width: "10vw"}}>
               left
             </div>
             <div style={{flexGrow: 1, display: "flex", flexDirection: "column"}}>
@@ -429,7 +430,7 @@ export default function Page() {
                   <HighScore score={0}/>
                 </div>
             </div>
-            <div style={{width: "15em"}}>
+            <div style={{width: "10vw"}}>
               <TimeRemaining timeRemaining={meteorData.timeRemaining}/>
             </div>
           </div>
@@ -443,7 +444,7 @@ export default function Page() {
                 meteorBoundsTrace={workout!== null ? workout.meteorBoundsTrace : [{distance: 0, min: 1, max: 4}]}
                 targets={meteorData.targets}/>
           </div>
-          <div style={{display: "flex", height: "10em"}}>
+          <div style={{display: "flex", height: "5em"}}>
             Footer
           </div>
         </div>

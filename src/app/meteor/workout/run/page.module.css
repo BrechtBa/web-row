@@ -6,35 +6,35 @@
 .title {
   color: rgba(var(--primary-text-rgb), 1.0);
   text-transform: uppercase;
-  font-size: 1.5em;
+  font-size: 1.5vw;
 }
 
 
 .segmentNumber {
   color: rgba(var(--important-rgb), 1.0);
-  font-size: 1.5em;
+  font-size: 1.5vw;
 }
 
 .segmentTimeRemaining {
   color: rgba(var(--important-rgb), 1.0);
-  font-size: 1.5em;
+  font-size: 1.5vw;
 }
 
 .timeRemaining {
   color: rgba(var(--primary-text-rgb), 1.0);
-  font-size: 1.5em;
+  font-size: 1.5vw;
 }
 .score {
   color: rgba(var(--secondary-text-rgb), 1.0);
-  font-size: 1.5em;
+  font-size: 1.5vw;
 }
 
 .meteorOrb {
-  r: 20;
+  r: 2vh;
   fill: rgba(var(--foreground-rgb), 1);
 }
 .meteorOrbHalo {
-  r: 40;
+  r: 4vh;
 }
 .meteorOrbHaloGradient {
   --stop-color-0: rgba(var(--foreground-rgb), 0.5);
@@ -49,11 +49,11 @@
   stroke-width: 3;
 }
 .meteorTraceHalo {
-  stroke-width: 36;
+  stroke-width: 3.6vh;
 }
 
 .targetCircle {
-  r: 70;
+  r: 6vh;
   fill: rgba(var(--foreground-rgb), 0.5);
 }
 .targetHaloGradient {
@@ -61,12 +61,12 @@
   --stop-color-1: rgba(var(--foreground-rgb), 0.0);
 }
 .targetHalo {
-  r: 90;
+  r: 8vh;
 }
 
 .targetPoints {
   fill: rgba(var(--secondary-text-rgb), 1.0);
-  font-size: 60px;
+  font-size: 6vh;
   text-anchor: middle;
   alignment-baseline: middle;
 }

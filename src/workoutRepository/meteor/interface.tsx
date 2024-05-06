@@ -1,12 +1,12 @@
 
-import { MeteorWorkoutDefinition } from '@/domain/meteor'
+import { MeteorWorkoutData } from '@/domain/meteor'
 
 
 
 export default interface MeteorWorkoutRepository {
 
-  listWorkouts(): Array<MeteorWorkoutDefinition>;
+  listWorkouts(): Array<MeteorWorkoutData>;
 
-  getWorkout(workoutId: string): MeteorWorkoutDefinition | undefined ;
+  getWorkout(workoutId: string): MeteorWorkoutData | undefined ;
 
 }

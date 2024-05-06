@@ -1,4 +1,5 @@
 import { IntensityZone, TimeDelta } from './intensityZone'
+import { Workout } from './workout'
 
 
 export class MeteorWorkoutTargetDefinition {
@@ -25,15 +26,9 @@ export class MeteorWorkoutIntervalDefinition {
 
 
 export class MeteorWorkoutDefinition {
-  workoutId: string
-  title: string
-  description: string
-  segments: MeteorWorkoutIntervalDefinition[];
+  segments: Array<MeteorWorkoutIntervalDefinition>;
 
-  constructor(workoutId: string, title: string, description: string, segments: Array<MeteorWorkoutIntervalDefinition>) {
-    this.workoutId = workoutId
-    this.title = title
-    this.description = description
+  constructor(segments: Array<MeteorWorkoutIntervalDefinition>) {
     this.segments = segments;
   }
 
@@ -44,4 +39,19 @@ export class MeteorWorkoutDefinition {
   getSegments(): Array<MeteorWorkoutIntervalDefinition> {
     return this.segments;
   }
+}
+
+export class MeteorWorkoutData implements Workout {
+  workoutId: string
+  title: string
+  description: string
+  workoutDefinition: MeteorWorkoutDefinition;
+
+  constructor(workoutId: string, title: string, description: string, workoutDefinition: MeteorWorkoutDefinition) {
+    this.workoutId = workoutId
+    this.title = title
+    this.description = description
+    this.workoutDefinition = workoutDefinition;
+  }
+
 }
