@@ -1,6 +1,6 @@
 
-import { IntensityZone, IntensityZoneSplits, TimeDelta } from '../../../../domain/domain'
-import {MeteorWorkoutTargetDefinition, MeteorWorkoutIntervalDefinition, MeteorWorkoutDefinition } from '../../domain'
+import { IntensityZone, IntensityZoneSplits, TimeDelta } from '../../../../domain/intensityZone'
+import { MeteorWorkoutIntervalDefinition, MeteorWorkoutDefinition } from '../../../../domain/meteor'
 import Rower from '../../../../rower/interface'
 
 

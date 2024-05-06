@@ -1,4 +1,4 @@
-import { IntensityZone, TimeDelta } from '../../domain/domain'
+import { IntensityZone, TimeDelta } from './intensityZone'
 
 
 export class MeteorWorkoutTargetDefinition {

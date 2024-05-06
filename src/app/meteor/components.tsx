@@ -1,8 +1,8 @@
 "use client"
 
 
-import { TimeDelta } from '@/domain/domain';
-import { MeteorWorkoutIntervalDefinition, MeteorWorkoutDefinition } from './domain';
+import { TimeDelta } from '@/domain/intensityZone';
+import { MeteorWorkoutIntervalDefinition, MeteorWorkoutDefinition } from '../../domain/meteor';
 
 import styles from "./page.module.css";
 

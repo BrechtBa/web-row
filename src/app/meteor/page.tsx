@@ -3,8 +3,9 @@ import { useRouter } from 'next/navigation';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Unstable_Grid2';
 
-import {  MeteorWorkoutDefinition } from './domain';
-import MeteorWorkoutRepository from './meteorWorkoutRepository';
+import {  MeteorWorkoutDefinition } from '../../domain/meteor';
+import { getMeteorWorkoutRepository } from '@/workoutRepository/factory';
+
 import { WorkoutChart } from './components';
 
 import styles from "./page.module.css";
@@ -48,7 +49,7 @@ function WorkoutCard({workout}: {workout: MeteorWorkoutDefinition}){
 
 
 
-const workoutRepository = new MeteorWorkoutRepository()
+const workoutRepository = getMeteorWorkoutRepository();
 
 
 export default function Page() {

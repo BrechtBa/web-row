@@ -2,9 +2,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import getRower from '../../../../rower/factory';
-import { IntensityZone, TimeDelta, range } from '@/domain/domain';
-import MeteorWorkoutRepository from '@/app/meteor/meteorWorkoutRepository';
+import getRower from '@/rower/factory';
+import { IntensityZone, TimeDelta, range } from '@/domain/intensityZone';
+import { getMeteorWorkoutRepository } from '@/workoutRepository/factory';
 import { MeteorWorkout, MeteorWorkoutSegment, MeteorWorkoutTarget, MeteorData } from './domain';
 
 
@@ -343,7 +343,8 @@ function TimeRemaining({timeRemaining}: {timeRemaining: TimeDelta}) {
 }
 
 const rower = getRower();
-const workoutRepository = new MeteorWorkoutRepository();
+const workoutRepository = getMeteorWorkoutRepository();
+
 
 const intensityZoneSplits =   {
   [IntensityZone.Paddle]: 500 / 3.0 * 1000,

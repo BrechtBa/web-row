@@ -1,6 +1,7 @@
 
-import { IntensityZone, TimeDelta } from '@/domain/domain'
-import { MeteorWorkoutIntervalDefinition, MeteorWorkoutDefinition, MeteorWorkoutTargetDefinition } from '@/app/meteor/domain'
+import { IntensityZone, TimeDelta } from '@/domain/intensityZone'
+import { MeteorWorkoutIntervalDefinition, MeteorWorkoutDefinition, MeteorWorkoutTargetDefinition } from '@/domain/meteor'
+import MeteorWorkoutRepository from './interface'
 
 
 const workouts = [
@@ -64,7 +65,7 @@ const workouts = [
 ]
 
 
-export default class MeteorWorkoutRepository {
+export default class MockMeteorWorkoutRepository implements MeteorWorkoutRepository {
 
   listWorkouts(): Array<MeteorWorkoutDefinition>{
     return workouts;
