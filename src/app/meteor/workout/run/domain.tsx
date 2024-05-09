@@ -1,4 +1,5 @@
 
+import { WorkoutVelocityHistory } from '@/domain/workoutExecution';
 import { IntensityZone, IntensityZoneSplits, TimeDelta } from '../../../../domain/intensityZone'
 import { MeteorWorkoutIntervalDefinition, MeteorWorkoutDefinition } from '../../../../domain/meteor'
 import Rower from '../../../../rower/interface'
@@ -143,7 +144,9 @@ export class MeteorWorkout {
   startDate: Date | null;
   lastUpdateDate: Date;
   meteorTrace: Array<Array<number>>;
-  meteorHistory: Array<{time: TimeDelta, velocity: number}>;
+  velocityHistory: WorkoutVelocityHistory;
+  started: boolean;
+  finished: boolean;
 
   constructor(workout: MeteorWorkoutDefinition, intensityZoneSplits: IntensityZoneSplits) {
     this.workout = workout;
@@ -156,7 +159,9 @@ export class MeteorWorkout {
     this.lastUpdateDate = new Date();
 
     this.meteorTrace = [[0, 0]];
-    this.meteorHistory = [{time: new TimeDelta(0), velocity: 0}]
+    this.velocityHistory = [{time: new TimeDelta(0), velocity: 0}]
+    this.started = false;
+    this.finished = false;
 
     this.meteorBoundsTrace = this._getWorkoutInstantaneousVelocityBoundsTrace(
       this.segments, getIntensityZoneInstantaneousVelocityBounds(IntensityZone.Paddle, intensityZoneSplits)
@@ -192,13 +197,13 @@ export class MeteorWorkout {
   start() {
     this.startDate = new Date();
     this.meteorTrace = [[0, 0]];
-    this.meteorHistory = [{time: new TimeDelta(0), velocity: 0}];
+    this.velocityHistory = [];
     this.segments = this._makeSegments(this.workout, this.intensityZoneSplits);
     this.targets = this._getTargets(this.segments);
   }
 
   update(now: Date, rower: Rower): MeteorData {
-
+    
     let instantaneousVelocity = rower.getInstantaneousVelocity();
     let time = new TimeDelta(0);
     let activeSegmentIndex = -1;
@@ -212,6 +217,10 @@ export class MeteorWorkout {
     if(this.startDate !== null){
       time = new TimeDelta(now.getTime() - this.startDate.getTime());
       
+      if(time.timeDeltaMs > this.totalDuration.timeDeltaMs + 2000) {
+        this.finished = true;
+      }
+
       meteorDistance = this._getMeteorDistance(time)
       activeSegmentIndex = this._getActiveSegmentIndex(time);
 
@@ -237,8 +246,8 @@ export class MeteorWorkout {
       }
 
       // update history
-      if(time.timeDeltaMs - this.meteorHistory[this.meteorHistory.length-1].time.timeDeltaMs > 1.){
-        this.meteorHistory.push({time: time, velocity: instantaneousVelocity})
+      if(this.velocityHistory.length === 0 || time.timeDeltaMs - this.velocityHistory[this.velocityHistory.length-1].time.timeDeltaMs > 1.){
+        this.velocityHistory.push({time: time, velocity: instantaneousVelocity})
       }
     }
 
@@ -263,6 +272,10 @@ export class MeteorWorkout {
       targetsCaught: targetsCaught,
       score: score,
     };
+  }
+
+  save(){
+    console.log("save workout")
   }
 
   _makeSegments(workout: MeteorWorkoutDefinition, intensityZoneSplits: IntensityZoneSplits): Array<MeteorWorkoutSegment> {

@@ -1,8 +1,7 @@
 "use client"
 import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import Grid from '@mui/material/Unstable_Grid2';
-import ClearIcon from '@mui/icons-material/Clear';
 
 
 import { MeteorWorkoutData } from '@/domain/meteor';
@@ -10,7 +9,9 @@ import { getMeteorWorkoutRepository } from '@/workoutRepository/factory';
 import { WorkoutChart } from '../components';
 
 import styles from "../page.module.css";
-
+import { WideButton } from "@/components/WideButton";
+import { FloatingCloseButton } from "@/components/FloatingCloseButton";
+import Link from "next/link";
 
 const workoutRepository = getMeteorWorkoutRepository();
 
@@ -18,10 +19,8 @@ const workoutRepository = getMeteorWorkoutRepository();
 export default function Page() {
 
   const searchParams = useSearchParams();
-  const router = useRouter();
 
   const [workout, setWorkout] = useState<MeteorWorkoutData | null>(null);
-  const href = workout!== null ? `/meteor/workout/run?workout=${workout.workoutId}`: "/meteor"
 
   useEffect(() => {
     const workoutId = searchParams.get('workout');
@@ -67,15 +66,15 @@ export default function Page() {
         </div>
 
         <div>
-          <div className={styles.button} onClick={() => router.push(href)} style={{width: "100%"}}>Start workout</div>
+          <Link href={workout!== null ? `/meteor/workout/run?workout=${workout.workoutId}`: "/meteor"}>
+            <WideButton>Start workout</WideButton>
+          </Link>
         </div>
 
       </div>
-      <div style={{position: "absolute", top: "1vw", right: "1vw"}}>
-        <div onClick={() => router.push("/meteor/")} style={{cursor: "pointer"}}>
-          <ClearIcon sx={{fontSize: "5vw", color: "rgba(var(--secondary-text-rgb), 0.3)"}} />
-        </div>
-      </div>
+      <Link href={"/meteor/"}>
+        <FloatingCloseButton />
+      </Link>
     </main>
   )
 }

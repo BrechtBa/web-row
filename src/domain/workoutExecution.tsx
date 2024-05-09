@@ -23,3 +23,5 @@ export class WorkoutExecution {
   }
 
 }
+
+export type WorkoutVelocityHistory = Array<{time: TimeDelta, velocity: number}>;

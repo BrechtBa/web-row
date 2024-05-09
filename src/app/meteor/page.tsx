@@ -1,6 +1,5 @@
 "use client"
-import { useRouter } from 'next/navigation';
-import Paper from '@mui/material/Paper';
+import Link from 'next/link'
 import Grid from '@mui/material/Unstable_Grid2';
 
 import { MeteorWorkoutData } from '@/domain/meteor';
@@ -9,40 +8,41 @@ import { getMeteorWorkoutRepository } from '@/workoutRepository/factory';
 import { WorkoutChart } from './components';
 
 import styles from "./page.module.css";
+import { FloatingCloseButton } from '@/components/FloatingCloseButton';
 
 
 function WorkoutCard({workout}: {workout: MeteorWorkoutData}){
  
-  const router = useRouter();
-  const href = `/meteor/workout?workout=${workout.workoutId}`;
-
   return (
     <div>
-      <div className={styles.paper} style={{cursor: "pointer"}} onClick={() => router.push(href)}>
-        <div style={{position: "relative"}}>
-          <div className={styles.workoutChart} >
-            <WorkoutChart workout={workout.workoutDefinition}/>
-          </div>
-          <div className={styles.workoutInfo} style={{position: "absolute", bottom: 0, left: 0}}>
-            <div className={styles.workoutTitle}>
-            {workout.title}
+      <Link href={`/meteor/workout?workout=${workout.workoutId}`}>
+        <div className={styles.paper} style={{cursor: "pointer"}}>
+          <div style={{position: "relative"}}>
+            <div className={styles.workoutChart} >
+              <WorkoutChart workout={workout.workoutDefinition}/>
             </div>
-            <div className={styles.workoutDescription}>
-            {workout.description}
+            <div className={styles.workoutInfo} style={{position: "absolute", bottom: 0, left: 0}}>
+              <div className={styles.workoutTitle}>
+              {workout.title}
+              </div>
+              <div className={styles.workoutDescription}>
+              {workout.description}
+              </div>
             </div>
+
           </div>
 
-        </div>
-        <div className={styles.workoutData}>
-          <Grid container spacing={2}>
-            <Grid xs={6}>
-              <span className={styles.propertyName}>Duration: </span>
-              <span className={styles.propertyValue}>{workout.workoutDefinition.getTotalDuration().formatMinutesSeconds()}</span>
+          <div className={styles.workoutData}>
+            <Grid container spacing={2}>
+              <Grid xs={6}>
+                <span className={styles.propertyName}>Duration: </span>
+                <span className={styles.propertyValue}>{workout.workoutDefinition.getTotalDuration().formatMinutesSeconds()}</span>
+              </Grid>
             </Grid>
-          </Grid>
+          </div>
+          
         </div>
-        
-      </div>
+      </Link>
     </div>
   )
 }
@@ -64,6 +64,9 @@ export default function Page() {
           ))}
         </Grid>
       </div>
+      <Link href="/">
+        <FloatingCloseButton />
+      </Link>
     </main>
   )
 }
