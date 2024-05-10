@@ -103,7 +103,9 @@ export default function Page() {
   const [workoutData, setWorkoutData] = useState<MeteorWorkoutData | null>(null);
   const [workout, setWorkout] = useState<MeteorWorkout | null>(null);
   const [meteorData, setMeteorData] = useState<MeteorData>(MeteorWorkout.getInitialData());
+  const [timeToStart, setTimeToStart] = useState<number>(10);
   const [workoutFinished, setWorkoutFinished] = useState<boolean>(false);
+  const [workoutStopped, setWorkoutStopped] = useState<boolean>(false);
 
   const {rowerType} = useContext(RowerContext)
   const {user} = useContext(UserContext)
@@ -144,9 +146,17 @@ export default function Page() {
       const uiUpdateLoop = () => {
         const newMeteorData = workout.update(new Date(), rower);
   
-        if(workout.finished){
+        if(newMeteorData.time.timeDeltaMs < 500){
+          setTimeToStart(Math.round(-newMeteorData.time.timeDeltaMs / 1000));
+        }
+
+        if(newMeteorData.time.timeDeltaMs > workout.totalDuration.timeDeltaMs){
           setWorkoutFinished(true);
-          rower.stop()
+        }
+
+        if(workout.finished){
+          setWorkoutStopped(true);
+          rower.stop();
           return;  // do not call frameRefresh to break the loop
         }
   
@@ -172,11 +182,27 @@ export default function Page() {
   return (
     <main style={{width: "100%", height: "100%"}}>
 
-      {workout !== null && rower !== null && !workoutFinished && (
+      {workout !== null && rower !== null && !workoutStopped && (
         <RunningMeteorWorkout workout={workout} meteorData={meteorData} />
       )}
 
-      {workout !== null && workoutFinished && (
+      {workout !== null && rower !== null && timeToStart > 0 && (
+        <div className={styles.startSplashScreen} style={{position: "absolute", top: 0, left: 0, width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center"}}>
+          <div>
+            {timeToStart}
+          </div>
+        </div>
+      )}
+
+      {workout !== null && rower !== null && workoutFinished && !workoutStopped && (
+        <div className={styles.finishedSplashScreen} style={{position: "absolute", top: 0, left: 0, width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center"}}>
+          <div>
+            Workout Finished
+          </div>
+        </div>
+      )}
+
+      {workout !== null && workoutStopped && (
         <FinishedMeteorWorkout workout={workout} />
       )}
 

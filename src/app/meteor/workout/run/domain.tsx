@@ -195,8 +195,8 @@ export class MeteorWorkout {
   }
 
   start() {
-    this.startDate = new Date();
-    this.meteorTrace = [[0, 0]];
+    this.startDate = new Date(new Date().getTime() + 10000);
+    this.meteorTrace = [[-50, 0]];
     this.velocityHistory = [];
     this.segments = this._makeSegments(this.workout, this.intensityZoneSplits);
     this.targets = this._getTargets(this.segments);
@@ -216,12 +216,11 @@ export class MeteorWorkout {
 
     if(this.startDate !== null){
       time = new TimeDelta(now.getTime() - this.startDate.getTime());
-      
       if(time.timeDeltaMs > this.totalDuration.timeDeltaMs + 2000) {
         this.finished = true;
       }
 
-      meteorDistance = this._getMeteorDistance(time)
+      meteorDistance = this._getMeteorDistance(time);
       activeSegmentIndex = this._getActiveSegmentIndex(time);
 
       if(activeSegmentIndex >= 0) {
@@ -261,12 +260,12 @@ export class MeteorWorkout {
       meteorTrace: this.meteorTrace,
       duration: this.totalDuration,
       time: time,
-      timeRemaining: new TimeDelta(Math.max(0, this.totalDuration.timeDeltaMs - time.timeDeltaMs)),
+      timeRemaining: new TimeDelta(Math.min(this.totalDuration.timeDeltaMs, Math.max(0, this.totalDuration.timeDeltaMs - time.timeDeltaMs))),
       totalSegments: this.workout.segments.length,
       activeSegment: {
         index: activeSegmentIndex,
         duration: activeSegment !== null ? activeSegment.duration : new TimeDelta(0),
-        timeRemaining: activeSegment !== null ? new TimeDelta(Math.max(0, activeSegment.startTime.timeDeltaMs + activeSegment.duration.timeDeltaMs - time.timeDeltaMs)) : new TimeDelta(0),
+        timeRemaining: activeSegment !== null ? new TimeDelta(Math.min(activeSegment.duration.timeDeltaMs, Math.max(0, activeSegment.startTime.timeDeltaMs + activeSegment.duration.timeDeltaMs - time.timeDeltaMs))) : new TimeDelta(0),
       },
       targets: this.targets,
       targetsCaught: targetsCaught,
