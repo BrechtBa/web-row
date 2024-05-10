@@ -1,31 +1,22 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 
+import { RowerContext, UserContext } from '@/app/contextProviders';
+
+import Rower from '@/rower/interface';
 import getRower from '@/rower/factory';
-import { IntensityZone } from '@/domain/intensityZone';
 import { MeteorWorkoutData } from '@/domain/meteor';
 import { getMeteorWorkoutRepository } from '@/workoutRepository/factory';
 import { MeteorWorkout, MeteorData } from './domain';
 
-
-import styles from "./page.module.css";
 import { WideButton } from '@/components/WideButton';
 import { WorkoutVelocityChart } from '@/components/WorkoutVelocityChart';
 import { WorkoutOverviewGraph, CurrentScore, SegmentIntervalStats, HighScore, TimeRemaining, GameArea } from './gameComponents';
-import Link from 'next/link';
 
 
-const rower = getRower();
-const workoutRepository = getMeteorWorkoutRepository();
-
-
-const intensityZoneSplits =   {
-  [IntensityZone.Paddle]: 500 / 3.0 * 1000,
-  [IntensityZone.Steady]: 500 / 3.5 * 1000,
-  [IntensityZone.Race]: 500 / 4.0 * 1000,
-  [IntensityZone.Sprint]: 500 / 4.5 * 1000
-}
+import styles from "./page.module.css";
 
 
 function RunningMeteorWorkout({workout, meteorData}: {workout: MeteorWorkout, meteorData: MeteorData}) {
@@ -51,7 +42,8 @@ function RunningMeteorWorkout({workout, meteorData}: {workout: MeteorWorkout, me
         </div>
       </div>
 
-      <div style={{width: "100%", flexGrow: 1, position: "relative"}}>
+      <div style={{width: "100%", flexGrow: 1}}>
+        test
         <GameArea
             workout={workout}
             meteorDistance={meteorData.meteorDistance}
@@ -60,6 +52,7 @@ function RunningMeteorWorkout({workout, meteorData}: {workout: MeteorWorkout, me
             meteorBoundsTrace={workout.meteorBoundsTrace}
             targets={meteorData.targets}/>
       </div>
+
       <div style={{display: "flex", height: "5em"}}>
         Footer
       </div>
@@ -98,19 +91,35 @@ function FinishedMeteorWorkout({workout}: {workout: MeteorWorkout}) {
 
 
 
+const workoutRepository = getMeteorWorkoutRepository();
+
+
 export default function Page() {
 
   const dt = 20;
   const searchParams = useSearchParams();
 
+  const [rower, setRower] = useState<Rower | null>(null);
   const [workoutData, setWorkoutData] = useState<MeteorWorkoutData | null>(null);
   const [workout, setWorkout] = useState<MeteorWorkout | null>(null);
   const [meteorData, setMeteorData] = useState<MeteorData>(MeteorWorkout.getInitialData());
   const [workoutFinished, setWorkoutFinished] = useState<boolean>(false);
 
+  const {rowerType} = useContext(RowerContext)
+  const {user} = useContext(UserContext)
+
+
   useEffect(() => {
-    rower.start();
-  }, []);
+    setRower(getRower(rowerType));
+  }, [rowerType]);
+
+
+  useEffect(() => {
+    if(rower!==null){
+      rower.start();
+    }
+  }, [rower]);
+
 
   useEffect(() => {
     const workoutId = searchParams.get('workout');
@@ -118,16 +127,16 @@ export default function Page() {
       const workoutData = workoutRepository.getWorkout(workoutId);
       if( workoutData !== undefined ){
         setWorkoutData(workoutData);
-        setWorkout(new MeteorWorkout(workoutData.workoutDefinition, intensityZoneSplits));
+        setWorkout(new MeteorWorkout(workoutData.workoutDefinition, user.intensityZoneSplits));
       }
     }
-  }, [searchParams]);
+  }, [searchParams, user]);
 
 
   useEffect(() => {
     let frameRefreshTimer: ReturnType<typeof setTimeout> | null = null
     
-    if(workout !== null) {
+    if(workout !== null && rower !== null) {
       // start the workout
       workout.start();
 
@@ -156,12 +165,13 @@ export default function Page() {
       }
     }
     
-  }, [workout]);
+  }, [workout, rower]);
+
 
   return (
     <main style={{width: "100%", height: "100%"}}>
 
-      {!workoutFinished && workout !== null && !workoutFinished && (
+      {workout !== null && rower !== null && !workoutFinished && (
         <RunningMeteorWorkout workout={workout} meteorData={meteorData} />
       )}
 

@@ -42,7 +42,7 @@ export function WorkoutVelocityChart({velocityHistory, intervalTimes}: {velocity
            d={calculatePath(velocityHistory.map((v) => [timeDelta2x(v.time), velocity2y(v.velocity)]))} />
 
         {intervalTimes.map(time => (
-          <path id="OverviewGraph" stroke="rgba(var(--secondary-text-rgb), 1)" strokeWidth="1px" strokeOpacity="1" fill="none"
+          <path key={time.timeDeltaMs} id="OverviewGraph" stroke="rgba(var(--secondary-text-rgb), 1)" strokeWidth="1px" strokeOpacity="1" fill="none"
             d={`M ${timeDelta2x(time)}, 3 L ${timeDelta2x(time)}, 197`} />
         ))}
 

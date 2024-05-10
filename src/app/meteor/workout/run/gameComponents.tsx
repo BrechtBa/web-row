@@ -1,17 +1,10 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
 
-import getRower from '@/rower/factory';
-import { IntensityZone, TimeDelta, range } from '@/domain/intensityZone';
-import { MeteorWorkoutData } from '@/domain/meteor';
-import { getMeteorWorkoutRepository } from '@/workoutRepository/factory';
-import { MeteorWorkout, MeteorWorkoutSegment, MeteorWorkoutTarget, MeteorData } from './domain';
-
+import { MeteorWorkout, MeteorWorkoutSegment, MeteorWorkoutTarget } from './domain';
 
 import styles from "./page.module.css";
-import { WideButton } from '@/components/WideButton';
-import { WorkoutVelocityChart } from '@/components/WorkoutVelocityChart';
+import { range, TimeDelta } from '@/domain/intensityZone';
 
 
 function calculateSmoothPath(data: number[][], k?: number) {
@@ -214,7 +207,6 @@ export function GameArea({workout, meteorDistance, instantaneousVelocity, meteor
 
   return (
     <div ref={gameAreaRef} style={{width: "100%", height: "100%", position: "relative"}}>
-
       {gridDistances.map(d => (
           <VerticalGrid key={d} x={distanceToPixels(d)}/>
       ))}

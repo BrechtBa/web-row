@@ -1,7 +1,13 @@
 .main {
   display: flex;
-  felx-di
   height: 100%;
+}
+
+.menuItem {
+  color: rgba(var(--primary-text-rgb), 1.0);
+  text-transform: uppercase;
+  font-size: 1.5vw;
+  padding: 1em;
 }
 
 /* Enable hover only on non-touch devices */

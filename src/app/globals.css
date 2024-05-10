@@ -3,6 +3,7 @@
 
   --background-start-rgb: 23, 18, 36;
   --background-end-rgb: 48, 32, 34;
+
   --paper-rgb: 7, 9, 24;
 
   --primary-text-rgb: 245, 245, 245;
@@ -15,7 +16,6 @@
   --primary-button-rgb: 58, 90, 100;
 
 }
-
 
 * {
   box-sizing: border-box;
@@ -51,4 +51,31 @@ a {
   html {
     color-scheme: dark;
   }
+}
+
+
+/* MUI overrides */
+
+.MuiSelect-select {
+  color: rgb(var(--primary-text-rgb), 1.0);
+}
+.MuiOutlinedInput-notchedOutline {
+  border-color: rgb(var(--secondary-text-rgb), 1.0);
+}
+
+& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: rgb(var(--secondary-text-rgb), 1.0);
+}
+
+.MuiSelect-icon {
+  color: rgb(var(--primary-text-rgb), 1.0);
+}
+
+.MuiDrawer-paper{
+  background-color: rgba(var(--paper-rgb), 1.0);
+}
+
+.MuiPaper-root{
+  background-color: rgba(var(--paper-rgb), 1.0);
+  color: rgb(var(--primary-text-rgb), 1.0);
 }

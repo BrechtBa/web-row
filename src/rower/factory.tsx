@@ -4,11 +4,16 @@ import MockRower from './MockRower'
 import TapRower from './TapRower'
 import WebsocketWaterRower from './WebsocketWaterRower'
 
+export enum RowerType {
+  Tap = "Tap",
+  WebsocketWaterrower = "WebsocketWaterrower",
+}
 
-export default function getRower(): Rower {
-  // const rower = new MockRower();
-  const rower = new TapRower();
-  // const rower = new WebsocketWaterRower();
+export default function getRower(type?: RowerType): Rower {
 
-  return rower;
+  if(type === RowerType.WebsocketWaterrower) {
+    return new WebsocketWaterRower();
+  }
+
+  return new TapRower();
 }

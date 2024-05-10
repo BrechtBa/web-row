@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
-import { Suspense } from 'react'
-
 import { Roboto_Condensed } from "next/font/google";
+
 import "./globals.css";
+
+import ContextWrapper from "./contextProviders";
+
 
 const roboto = Roboto_Condensed({ subsets: ["latin"] });
 
@@ -13,16 +15,16 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+
+export default function RootLayout({children}: Readonly<{children: React.ReactNode;}>) {
+
   return (
     <html lang="en">
-      <Suspense>
-        <body className={roboto.className}>{children}</body>
-      </Suspense>
+        <body className={roboto.className}>
+          <ContextWrapper>
+            {children}
+          </ContextWrapper>
+        </body>
     </html>
   );
 }
