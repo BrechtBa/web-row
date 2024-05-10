@@ -146,6 +146,7 @@ export default function Page() {
   
         if(workout.finished){
           setWorkoutFinished(true);
+          rower.stop()
           return;  // do not call frameRefresh to break the loop
         }
   

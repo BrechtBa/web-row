@@ -19,6 +19,13 @@ export default class WebsocketWaterRower implements Rower {
     } 
   }
 
+  stop(): void {
+    if(this.ws !== null) {
+      this.ws.close();
+      this.ws = null;
+    }
+  }
+
   openWebsocket() {    
     this.ws = new WebSocket(this.uri);
 
@@ -72,6 +79,5 @@ export default class WebsocketWaterRower implements Rower {
   getInstantaneousVelocity() : number {
       return this.instantaneousVelocity;
   }
-
 
 }

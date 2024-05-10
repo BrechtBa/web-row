@@ -19,6 +19,10 @@ export default class MockRower implements Rower{
       that.instantaneousVelocity = 4.0 + 0.8 * Math.sin((t - t0)/1000);
     }, 20);
   }
+  
+  stop(): void {
+
+  }
 
   getInstantaneousVelocity() : number {
       return this.instantaneousVelocity;

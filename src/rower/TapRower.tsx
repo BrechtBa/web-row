@@ -6,12 +6,20 @@ export default class TapRower implements Rower{
   instantaneousVelocity: number;
   force: number;
   interval: ReturnType<typeof setInterval> | null;
+  tapHandler: (e: object) => void
 
   constructor(){
     this.instantaneousVelocity = 5;
     this.force = 0;
     this.interval = null;
+
+    this.tapHandler = this.tap.bind(this);
   }
+
+  tap(event: object): void {
+    this.force = 2.0;
+  }
+
 
   public start(): void {
     this.instantaneousVelocity = 2;
@@ -24,10 +32,9 @@ export default class TapRower implements Rower{
     const forceTau = 1.2;
 
     const that = this;
- 
-    addEventListener("keypress", (event) => {
-      that.force = 2.0
-    });
+
+    addEventListener("click", this.tapHandler);
+    addEventListener("keypress", this.tapHandler);
 
     if(this.interval === null) {
       this.interval = setInterval(() => {
@@ -38,7 +45,11 @@ export default class TapRower implements Rower{
         that.instantaneousVelocity = that.instantaneousVelocity + dvdt * dt/1000;
       }, 20);
     }
+  }
 
+  stop(): void {
+    removeEventListener('click', this.tapHandler)
+    removeEventListener('keypress', this.tapHandler)
   }
 
   getInstantaneousVelocity() : number {
