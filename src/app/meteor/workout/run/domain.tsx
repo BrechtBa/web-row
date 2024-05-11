@@ -251,7 +251,6 @@ export class MeteorWorkout {
     }
 
     let targetsCaught = this.targets.filter(target => target.caught).length
-    let score = this.targets.reduce((accumulator: number, target: MeteorWorkoutTarget) => accumulator + (target.caught ? target.points : 0), 0)
 
     return {
       frameRate: frameRate,
@@ -269,12 +268,12 @@ export class MeteorWorkout {
       },
       targets: this.targets,
       targetsCaught: targetsCaught,
-      score: score,
+      score: this.getScore(),
     };
   }
 
-  save(){
-    console.log("save workout")
+  getScore(): number {
+    return this.targets.reduce((accumulator: number, target: MeteorWorkoutTarget) => accumulator + (target.caught ? target.points : 0), 0)
   }
 
   _makeSegments(workout: MeteorWorkoutDefinition, intensityZoneSplits: IntensityZoneSplits): Array<MeteorWorkoutSegment> {

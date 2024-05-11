@@ -5,7 +5,7 @@ import Link from "next/link";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 
-import { FloatingCloseButton } from "@/components/FloatingCloseButton";
+import { FloatingCloseButton } from "@/components/CloseButton";
 
 import { RowerType } from '@/rower/factory';
 import { RowerContext } from "@/app/contextProviders";

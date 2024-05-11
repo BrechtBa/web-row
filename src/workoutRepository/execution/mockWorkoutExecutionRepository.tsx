@@ -20,17 +20,25 @@ const workoutUser2 = new User(
 
 
 const workoutExecutions = new Map<string, WorkoutExecution>([
-  ["executionId1", new WorkoutExecution("executionId1", workouts[0], workoutUser1, {distance: 4500, time: new TimeDelta(30*60*1000)})],
-  ["executionId2", new WorkoutExecution("executionId2", workouts[0], workoutUser1, {distance: 4500, time: new TimeDelta(32*60*1000)})],
-  ["executionId3", new WorkoutExecution("executionId3", workouts[1], workoutUser1, {distance: 4500, time: new TimeDelta(32*60*1000)})],
-  ["executionId4", new WorkoutExecution("executionId4", workouts[1], workoutUser2, {distance: 4500, time: new TimeDelta(32*60*1000)})],
+  ["executionId1", new WorkoutExecution("executionId1", workouts[0], workoutUser1, {distance: 4500, time: new TimeDelta(30*60*1000), score: 12})],
+  ["executionId2", new WorkoutExecution("executionId2", workouts[0], workoutUser1, {distance: 4500, time: new TimeDelta(32*60*1000), score: 13})],
+  ["executionId3", new WorkoutExecution("executionId3", workouts[1], workoutUser1, {distance: 4500, time: new TimeDelta(32*60*1000), score: 14})],
+  ["executionId4", new WorkoutExecution("executionId4", workouts[1], workoutUser2, {distance: 4500, time: new TimeDelta(32*60*1000), score: 15})],
 ])
 
 
 export class MockWorkoutExecutionRepository implements WorkoutExecutionRepository{
 
-  listWorkoutExecutionsForWorkout(workoutId: string): Array<WorkoutExecution>{
-    return Array.from(workoutExecutions.values()).filter(execution => execution.workout.workoutId == workoutId);
+  listWorkoutExecutionsForWorkoutSortedByScore(workoutId: string, limit?: number): Array<WorkoutExecution>{
+    limit = limit === undefined ? 10 : limit;
+
+    return Array.from(workoutExecutions.values()).filter(
+      execution => execution.workout.workoutId == workoutId
+    ).toSorted(
+      (a, b) => b.result.score - a.result.score
+    ).slice(
+      0, limit
+    );
   }
   
   getWorkoutExecution(workoutExecutionId: string): WorkoutExecution | undefined {

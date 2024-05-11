@@ -1,9 +1,3 @@
-
-.workoutChartLine {
-  stroke: rgba(var(--important-rgb), 1.0);
-  stroke-width: 4px;
-}
-
 .workoutTitle {
   text-transform: uppercase;
   font-size: 1.5vw;
@@ -27,4 +21,13 @@
 
 .propertyValue {
   color: rgba(var(--secondary-text-rgb), 1.0);
+}
+
+.sidePane {
+  border-left: 1px solid;
+  border-color: rgba(var(--secondary-text-rgb), 1.0);
+}
+
+.sidePaneTitle {
+  margin: 0.5em;
 }

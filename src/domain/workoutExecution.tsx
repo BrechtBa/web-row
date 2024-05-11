@@ -6,6 +6,7 @@ import { TimeDelta } from './intensityZone';
 export interface WorkoutResult {
   distance: number;
   time: TimeDelta;
+  score: number;
 }
 
 

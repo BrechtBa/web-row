@@ -68,7 +68,7 @@ function FinishedMeteorWorkout({workout, user}: {workout: MeteorWorkout, user: U
   const workoutExecuteionRepository = getWorkoutExecutionRepository()
   const saveStats = () => {
     workoutExecuteionRepository.storeWorkoutExecution(
-      WorkoutExecution.create(workout.workoutData, user, {distance: 1234, time: workout.totalDuration})
+      WorkoutExecution.create(workout.workoutData, user, {distance: 1234, time: workout.totalDuration, score: workout.getScore()})
     )
     router.push("/");
   }

@@ -8,7 +8,8 @@ import { getMeteorWorkoutRepository } from '@/workoutRepository/factory';
 import { WorkoutChart } from './components';
 
 import styles from "./page.module.css";
-import { FloatingCloseButton } from '@/components/FloatingCloseButton';
+import { CloseButton } from '@/components/CloseButton';
+import { TitleBar } from '@/components/TitleBar';
 
 
 function WorkoutCard({workout}: {workout: MeteorWorkoutData}){
@@ -16,7 +17,7 @@ function WorkoutCard({workout}: {workout: MeteorWorkoutData}){
   return (
     <div>
       <Link href={`/meteor/workout?workout=${workout.workoutId}`}>
-        <div className={styles.paper} style={{cursor: "pointer"}}>
+        <div className="paper" style={{cursor: "pointer"}}>
           <div style={{position: "relative"}}>
             <div className={styles.workoutChart} >
               <WorkoutChart workout={workout.workoutDefinition}/>
@@ -54,8 +55,14 @@ const workoutRepository = getMeteorWorkoutRepository();
 
 export default function Page() {
   return (
-    <main style={{width: "100%", display: "flex", flexDirection: "column", padding: "1em"}}>
-      <div>
+    <main style={{width: "100%", height: "100%", display: "flex", flexDirection: "column"}}>
+      <TitleBar title="Meteor" icon={(<div>M</div>)}>
+        <Link href="/">
+          <CloseButton />
+        </Link>
+      </TitleBar>
+
+      <div style={{padding: "1em", overflowY: "scroll"}}>
         <Grid container spacing={2}>
           {workoutRepository.listWorkouts().map(workout => (
             <Grid key={workout.workoutId} xs={6}>
@@ -64,9 +71,7 @@ export default function Page() {
           ))}
         </Grid>
       </div>
-      <Link href="/">
-        <FloatingCloseButton />
-      </Link>
+      
     </main>
   )
 }

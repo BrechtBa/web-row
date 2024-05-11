@@ -53,6 +53,18 @@ a {
   }
 }
 
+.paper {
+  background-color: rgba(var(--paper-rgb), 1.0);
+  color: rgba(var(--primary-text-rgb), 1.0);
+  padding: 1vw;
+}
+
+.rankingContainer>div:nth-child(odd) {
+  background-color: rgba(var(--paper-rgb), 1.0);
+}
+.rankingContainer>div:nth-child(even) {
+  background-color: rgba(var(--background-start-rgb), 1.0);
+}
 
 /* MUI overrides */
 
