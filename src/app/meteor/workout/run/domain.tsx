@@ -1,7 +1,7 @@
 
 import { WorkoutVelocityHistory } from '@/domain/workoutExecution';
 import { IntensityZone, IntensityZoneSplits, TimeDelta } from '../../../../domain/intensityZone'
-import { MeteorWorkoutIntervalDefinition, MeteorWorkoutDefinition } from '../../../../domain/meteor'
+import { MeteorWorkoutIntervalDefinition, MeteorWorkoutDefinition, MeteorWorkoutData } from '../../../../domain/meteor'
 import Rower from '../../../../rower/interface'
 
 
@@ -131,7 +131,7 @@ export class MeteorWorkoutTarget {
 }
 
 export class MeteorWorkout {
-  workout: MeteorWorkoutDefinition;
+  workoutData: MeteorWorkoutData;
   intensityZoneSplits: IntensityZoneSplits;
   segments: Array<MeteorWorkoutSegment>;
 
@@ -148,12 +148,12 @@ export class MeteorWorkout {
   started: boolean;
   finished: boolean;
 
-  constructor(workout: MeteorWorkoutDefinition, intensityZoneSplits: IntensityZoneSplits) {
-    this.workout = workout;
+  constructor(workout: MeteorWorkoutData, intensityZoneSplits: IntensityZoneSplits) {
+    this.workoutData = workout;
     this.intensityZoneSplits = intensityZoneSplits;
-    this.segments = this._makeSegments(workout, intensityZoneSplits);
+    this.segments = this._makeSegments(workout.workoutDefinition, intensityZoneSplits);
 
-    this.totalDuration = this.workout.getTotalDuration()
+    this.totalDuration = this.workoutData.workoutDefinition.getTotalDuration()
 
     this.startDate = null;
     this.lastUpdateDate = new Date();
@@ -198,7 +198,7 @@ export class MeteorWorkout {
     this.startDate = new Date(new Date().getTime() + 10000);
     this.meteorTrace = [[-50, 0]];
     this.velocityHistory = [];
-    this.segments = this._makeSegments(this.workout, this.intensityZoneSplits);
+    this.segments = this._makeSegments(this.workoutData.workoutDefinition, this.intensityZoneSplits);
     this.targets = this._getTargets(this.segments);
   }
 
@@ -261,7 +261,7 @@ export class MeteorWorkout {
       duration: this.totalDuration,
       time: time,
       timeRemaining: new TimeDelta(Math.min(this.totalDuration.timeDeltaMs, Math.max(0, this.totalDuration.timeDeltaMs - time.timeDeltaMs))),
-      totalSegments: this.workout.segments.length,
+      totalSegments: this.workoutData.workoutDefinition.segments.length,
       activeSegment: {
         index: activeSegmentIndex,
         duration: activeSegment !== null ? activeSegment.duration : new TimeDelta(0),

@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect, useContext } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 import { RowerContext, UserContext } from '@/app/contextProviders';
@@ -8,7 +8,7 @@ import { RowerContext, UserContext } from '@/app/contextProviders';
 import Rower from '@/rower/interface';
 import getRower from '@/rower/factory';
 import { MeteorWorkoutData } from '@/domain/meteor';
-import { getMeteorWorkoutRepository } from '@/workoutRepository/factory';
+import { getMeteorWorkoutRepository, getWorkoutExecutionRepository } from '@/workoutRepository/factory';
 import { MeteorWorkout, MeteorData } from './domain';
 
 import { WideButton } from '@/components/WideButton';
@@ -17,6 +17,8 @@ import { WorkoutOverviewGraph, CurrentScore, SegmentIntervalStats, HighScore, Ti
 
 
 import styles from "./page.module.css";
+import { WorkoutExecution } from '@/domain/workoutExecution';
+import { User } from '@/domain/user';
 
 
 function RunningMeteorWorkout({workout, meteorData}: {workout: MeteorWorkout, meteorData: MeteorData}) {
@@ -60,7 +62,17 @@ function RunningMeteorWorkout({workout, meteorData}: {workout: MeteorWorkout, me
   );
 }
 
-function FinishedMeteorWorkout({workout}: {workout: MeteorWorkout}) {
+function FinishedMeteorWorkout({workout, user}: {workout: MeteorWorkout, user: User}) {
+
+  const router = useRouter();
+  const workoutExecuteionRepository = getWorkoutExecutionRepository()
+  const saveStats = () => {
+    workoutExecuteionRepository.storeWorkoutExecution(
+      WorkoutExecution.create(workout.workoutData, user, {distance: 1234, time: workout.totalDuration})
+    )
+    router.push("/");
+  }
+
 
   return (
     <div style={{width: "100%", height: "100%", display: "flex", flexDirection: "column"}}>
@@ -80,10 +92,8 @@ function FinishedMeteorWorkout({workout}: {workout: MeteorWorkout}) {
         </div>
       </div>
       
-      <div>
-        <Link href="/">       
-          <WideButton>Save stats</WideButton>
-        </Link>
+      <div>           
+        <WideButton onClick={saveStats}>Save stats</WideButton>
       </div>
     </div>
   );
@@ -129,7 +139,7 @@ export default function Page() {
       const workoutData = workoutRepository.getWorkout(workoutId);
       if( workoutData !== undefined ){
         setWorkoutData(workoutData);
-        setWorkout(new MeteorWorkout(workoutData.workoutDefinition, user.intensityZoneSplits));
+        setWorkout(new MeteorWorkout(workoutData, user.intensityZoneSplits));
       }
     }
   }, [searchParams, user]);
@@ -203,7 +213,7 @@ export default function Page() {
       )}
 
       {workout !== null && workoutStopped && (
-        <FinishedMeteorWorkout workout={workout} />
+        <FinishedMeteorWorkout workout={workout} user={user}/>
       )}
 
     </main>
