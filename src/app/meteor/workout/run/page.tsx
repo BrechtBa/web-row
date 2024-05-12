@@ -11,9 +11,9 @@ import { MeteorWorkoutData } from '@/domain/meteor';
 import { getMeteorWorkoutRepository, getWorkoutExecutionRepository } from '@/workoutRepository/factory';
 import { MeteorWorkout, MeteorData } from './domain';
 
-import { WideButton } from '@/components/WideButton';
+import { PauseButton, WideButton } from '@/components/Buttons';
 import { WorkoutVelocityChart } from '@/components/WorkoutVelocityChart';
-import { WorkoutOverviewGraph, CurrentScore, SegmentIntervalStats, HighScore, TimeRemaining, GameArea } from './gameComponents';
+import { WorkoutOverviewGraph, CurrentScore, SegmentIntervalStats, HighScore, TimeRemaining, GameArea, TargetsCaught } from './gameComponents';
 
 
 import styles from "./page.module.css";
@@ -27,7 +27,7 @@ function RunningMeteorWorkout({workout, meteorData}: {workout: MeteorWorkout, me
     <div style={{width: "100%", height: "100%", display: "flex", flexDirection: "column"}}>
       <div style={{display: "flex", flexDirection: "row", marginTop: "1em", marginLeft: "1em", marginRight: "1em", marginBottom: "1em"}}>
         <div style={{width: "10vw"}}>
-          left
+          <TargetsCaught targets={meteorData.targetsCaught}/>
         </div>
         <div style={{flexGrow: 1, display: "flex", flexDirection: "column"}}>
             <div>
@@ -45,7 +45,6 @@ function RunningMeteorWorkout({workout, meteorData}: {workout: MeteorWorkout, me
       </div>
 
       <div style={{width: "100%", flexGrow: 1}}>
-        test
         <GameArea
             workout={workout}
             meteorDistance={meteorData.meteorDistance}
@@ -55,8 +54,13 @@ function RunningMeteorWorkout({workout, meteorData}: {workout: MeteorWorkout, me
             targets={meteorData.targets}/>
       </div>
 
-      <div style={{display: "flex", height: "5em"}}>
-        Footer
+      <div style={{display: "flex", height: "5em", justifyContent: "space-between"}}>
+        <div>
+          
+        </div>
+        <div>
+          <PauseButton onClick={() => {}}/>
+        </div>
       </div>
     </div>  
   );

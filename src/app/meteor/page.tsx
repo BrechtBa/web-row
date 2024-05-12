@@ -8,7 +8,7 @@ import { getMeteorWorkoutRepository } from '@/workoutRepository/factory';
 import { WorkoutChart } from './components';
 
 import styles from "./page.module.css";
-import { CloseButton } from '@/components/CloseButton';
+import { CloseButton } from '@/components/Buttons';
 import { TitleBar } from '@/components/TitleBar';
 
 

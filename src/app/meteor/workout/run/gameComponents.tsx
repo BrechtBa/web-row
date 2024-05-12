@@ -306,6 +306,7 @@ export function HighScore({score}: {score: number}) {
   );
 }
 
+
 export function SegmentIntervalStats({activeSegmentIndex, totalSegments, timeRemaining}: {activeSegmentIndex: number, totalSegments: number, timeRemaining: TimeDelta}){
 
   return (
@@ -338,3 +339,15 @@ export function TimeRemaining({timeRemaining}: {timeRemaining: TimeDelta}) {
     </div>
   )
 }
+
+
+export function TargetsCaught({targets}: {targets: number}) {
+
+  return (
+    <div style={{display: "flex", flexDirection: "column", justifyContent: "flex-start"}}>
+      <div className={styles.title + " " + styles.segmentTitle} style={{textAlign: "left"}}>Targets</div>
+      <div className={styles.timeRemaining} style={{textAlign: "left"}}>{targets}</div>
+    </div>
+  );
+}
+

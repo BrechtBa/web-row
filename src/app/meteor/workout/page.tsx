@@ -9,8 +9,8 @@ import { getMeteorWorkoutRepository, getWorkoutExecutionRepository } from '@/wor
 import { WorkoutChart } from '../components';
 
 import styles from "./page.module.css";
-import { WideButton } from "@/components/WideButton";
-import { CloseButton } from "@/components/CloseButton";
+import { WideButton } from '@/components/Buttons';
+import { CloseButton } from "@/components/Buttons";
 import Link from "next/link";
 import { WorkoutExecution } from "@/domain/workoutExecution";
 import { TitleBar }  from "@/components/TitleBar";
