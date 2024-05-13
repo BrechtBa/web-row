@@ -12,6 +12,17 @@ export function CloseButton({onClick}: {onClick?: (e?: object) => void}) {
   );
 }
 
+
+export function FloatingCloseButton({onClick}: {onClick?: (e?: object) => void}) {
+ 
+  return (
+    <div style={{position: "absolute", top: "1vw", right: "1vw", width: "3em", height: "3em"}}>
+      <CloseButton onClick={onClick} />
+    </div>
+  );
+}
+
+
 export function PauseButton({onClick}: {onClick?: (e?: object) => void}) {
  
   return (
@@ -20,6 +31,7 @@ export function PauseButton({onClick}: {onClick?: (e?: object) => void}) {
     </div>
   );
 }
+
 
 export function WideButton({ onClick, children }: { onClick?: (e?: object) => void; children: React.ReactNode; }) {
 

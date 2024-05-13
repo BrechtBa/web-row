@@ -1,6 +1,8 @@
 "use client"
 import { useState, useEffect } from "react";
 import { useSearchParams } from 'next/navigation';
+import Link from "next/link";
+
 import Grid from '@mui/material/Unstable_Grid2';
 
 
@@ -11,9 +13,10 @@ import { WorkoutChart } from '../components';
 import styles from "./page.module.css";
 import { WideButton } from '@/components/Buttons';
 import { CloseButton } from "@/components/Buttons";
-import Link from "next/link";
+
 import { WorkoutExecution } from "@/domain/workoutExecution";
 import { TitleBar }  from "@/components/TitleBar";
+
 
 const workoutRepository = getMeteorWorkoutRepository();
 const workoutExecuteionRepository = getWorkoutExecutionRepository();

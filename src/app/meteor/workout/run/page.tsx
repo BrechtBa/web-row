@@ -121,8 +121,8 @@ export default function Page() {
   const [workoutFinished, setWorkoutFinished] = useState<boolean>(false);
   const [workoutStopped, setWorkoutStopped] = useState<boolean>(false);
 
-  const {rowerType} = useContext(RowerContext)
-  const {user} = useContext(UserContext)
+  const {rowerType} = useContext(RowerContext);
+  const {user} = useContext(UserContext);
 
 
   useEffect(() => {

@@ -8,6 +8,7 @@
 
   --primary-text-rgb: 245, 245, 245;
   --secondary-text-rgb: 105, 105, 105;
+  --clickable-rgb: 114, 195, 231;
 
   --foreground-rgb: 255, 255, 255;
   --important-rgb: 225, 141, 51;
@@ -67,6 +68,13 @@ a {
 }
 
 /* MUI overrides */
+.MuiFormLabel-root {
+  color: rgb(var(--primary-text-rgb), 1.0);
+}
+
+.MuiInputBase-root {
+  color: rgb(var(--primary-text-rgb), 1.0);
+}
 
 .MuiSelect-select {
   color: rgb(var(--primary-text-rgb), 1.0);
