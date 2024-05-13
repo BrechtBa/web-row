@@ -9,7 +9,7 @@ export function TitleBar({title, icon, children}: {title: string, icon: React.Re
       <div style={{marginLeft: "1em", marginRight: "1em", padding: "0.5em"}}>
         {icon}
       </div>
-      <div style={{flexGrow: 1, fontSize: "2em", textTransform: "uppercase", padding: "0.5em"}}>
+      <div className="title" style={{flexGrow: 1}}>
         {title}
       </div>
       <div>

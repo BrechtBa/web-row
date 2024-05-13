@@ -16,31 +16,12 @@ import { CloseButton } from "@/components/Buttons";
 
 import { WorkoutExecution } from "@/domain/workoutExecution";
 import { TitleBar }  from "@/components/TitleBar";
+import { SimplifiedRankingEntry } from "@/components/Ranking";
 
 
 const workoutRepository = getMeteorWorkoutRepository();
-const workoutExecuteionRepository = getWorkoutExecutionRepository();
+const workoutExecutionRepository = getWorkoutExecutionRepository();
 
-
-function RankingEntry({rank, displayName, score}: {rank: number, displayName: string, score: string}) {
-
-  return (
-    <div style={{display: "flex", flexDirection: "row", fontSize: "1em", paddingLeft: "1em", paddingRight: "1em", paddingTop: "0.5em", paddingBottom: "0.5em"}}>
-      <div style={{width: "2em"}}>
-        {rank}
-      </div>
-      <div>
-        
-      </div>
-      <div style={{flexGrow: 1}}>
-        {displayName}
-      </div>
-      <div>
-        {score}
-      </div>
-    </div>
-  );
-}
 
 export default function Page() {
 
@@ -55,7 +36,7 @@ export default function Page() {
       const workout = workoutRepository.getWorkout(workoutId);
       if(workout !== undefined){
         setWorkout(workout);
-        setWorkoutExecutions(workoutExecuteionRepository.listWorkoutExecutionsForWorkoutSortedByScore(workout.workoutId));
+        setWorkoutExecutions(workoutExecutionRepository.listWorkoutExecutionsForWorkoutSortedByScore(workout.workoutId));
       }
     }
   }, [searchParams]);
@@ -103,7 +84,7 @@ export default function Page() {
             <div className={styles.sidePaneTitle}>Ranking</div>
             <div className="rankingContainer">
               {workoutExecutions.map((workoutExecution, index) => (
-                <RankingEntry key={workoutExecution.workoutExecutionId} rank={index+1} displayName={workoutExecution.user.displayName} score={`${workoutExecution.result.score}`}/>
+                <SimplifiedRankingEntry key={workoutExecution.workoutExecutionId} rank={index+1} displayName={workoutExecution.user.displayName} score={`${workoutExecution.result.score}`}/>
               ))}
             </div>
           </div>

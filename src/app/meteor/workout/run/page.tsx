@@ -14,11 +14,12 @@ import { MeteorWorkout, MeteorData } from './domain';
 import { PauseButton, WideButton } from '@/components/Buttons';
 import { WorkoutVelocityChart } from '@/components/WorkoutVelocityChart';
 import { WorkoutOverviewGraph, CurrentScore, SegmentIntervalStats, HighScore, TimeRemaining, GameArea, TargetsCaught } from './gameComponents';
-
+import { RankingEntry, RankingHeader } from "@/components/Ranking";
 
 import styles from "./page.module.css";
 import { WorkoutExecution } from '@/domain/workoutExecution';
 import { User } from '@/domain/user';
+
 
 
 function RunningMeteorWorkout({workout, meteorData}: {workout: MeteorWorkout, meteorData: MeteorData}) {
@@ -66,39 +67,71 @@ function RunningMeteorWorkout({workout, meteorData}: {workout: MeteorWorkout, me
   );
 }
 
+const workoutExecutionRepository = getWorkoutExecutionRepository()
+
+
 function FinishedMeteorWorkout({workout, user}: {workout: MeteorWorkout, user: User}) {
+  
+  const [tab, setTab] = useState("RANKING");
+
+  const [workoutExecutions, setWorkoutExecutions] = useState<Array<WorkoutExecution>>([]);
+
+  useEffect(() => {
+    setWorkoutExecutions(workoutExecutionRepository.listWorkoutExecutionsForWorkoutSortedByScore(workout.workoutData.workoutId));
+  }, [workout]);
 
   const router = useRouter();
-  const workoutExecuteionRepository = getWorkoutExecutionRepository()
-  const saveStats = () => {
-    workoutExecuteionRepository.storeWorkoutExecution(
-      WorkoutExecution.create(workout.workoutData, user, {distance: 1234, time: workout.totalDuration, score: workout.getScore()})
-    )
-    router.push("/");
-  }
-
 
   return (
-    <div style={{width: "100%", height: "100%", display: "flex", flexDirection: "column"}}>
-      <div style={{flexGrow: 1}}>
-        <div>
-          Title
-        </div>
-        <div>
-          <WorkoutVelocityChart velocityHistory={workout.velocityHistory} intervalTimes={workout.segments.map(interval => interval.startTime)}/>
-          <div style={{width: "100%", backgroundColor: "rgba(var(--important-rgb), 1.0)"}}>
-            test
+    <div style={{width: "100%", height: "100%"}}>
+      { tab === "RANKING" && (
+        <div style={{height: "100%", display: "flex", flexDirection: "column"}}>
+          <div style={{flexGrow: 1}}>
+            <div className="title">
+              Ranking
+            </div>
+
+            <div>
+              <RankingHeader dataKeys={["Targets", "Score"]}/>
+              <div className="rankingContainer">
+                {workoutExecutions.map((workoutExecution, index) => (
+                  <RankingEntry key={workoutExecution.workoutExecutionId} rank={index+1} displayName={workoutExecution.user.displayName} 
+                                data={[{key: "score", val: `${workoutExecution.result.score}`}, {key: "score", val: `${workoutExecution.result.score}`}]}/>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div>           
+            <WideButton onClick={() => setTab("STATS")}>Your stats</WideButton>
           </div>
         </div>
+        
+      )}
 
-        <div>
-          stats
+      { tab === "STATS" && (
+        <div style={{height: "100%", display: "flex", flexDirection: "column"}}>
+          <div style={{flexGrow: 1}}>
+            <div className="title">
+              Your stats
+            </div>
+            <div>
+              <WorkoutVelocityChart velocityHistory={workout.velocityHistory} intervalTimes={workout.segments.map(interval => interval.startTime)}/>
+              <div style={{width: "100%", backgroundColor: "rgba(var(--important-rgb), 1.0)"}}>
+                test
+              </div>
+            </div>
+
+            <div>
+              stats
+            </div>
+          </div>
+          
+          <div>           
+            <WideButton onClick={() => router.push("/")}>Continue</WideButton>
+          </div>
         </div>
-      </div>
-      
-      <div>           
-        <WideButton onClick={saveStats}>Save stats</WideButton>
-      </div>
+       )}
     </div>
   );
 }
@@ -143,7 +176,7 @@ export default function Page() {
       const workoutData = workoutRepository.getWorkout(workoutId);
       if( workoutData !== undefined ){
         setWorkoutData(workoutData);
-        setWorkout(new MeteorWorkout(workoutData, user.intensityZoneSplits));
+        setWorkout(new MeteorWorkout(workoutData, user));
       }
     }
   }, [searchParams, user]);

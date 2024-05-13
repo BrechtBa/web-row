@@ -2,7 +2,7 @@ import { TimeDelta, IntensityZone, IntensityZoneSplits } from "@/domain/intensit
 import { MeteorWorkoutData, MeteorWorkoutDefinition, MeteorWorkoutIntervalDefinition } from "@/domain/meteor";
 import { Workout } from "@/domain/workout";
 import { User, Rank } from "@/domain/user";
-import { WorkoutExecution } from "@/domain/workoutExecution";
+import { MeteorWorkoutResult, WorkoutExecution } from "@/domain/workoutExecution";
 
 import MockMeteorWorkoutRepository from '../meteor/mockMeteorWorkoutRepository'
 import WorkoutExecutionRepository from "./interface";
@@ -19,17 +19,17 @@ const workoutUser2 = new User(
 )
 
 
-const workoutExecutions = new Map<string, WorkoutExecution>([
-  ["executionId1", new WorkoutExecution("executionId1", workouts[0], workoutUser1, {distance: 4500, time: new TimeDelta(30*60*1000), score: 12})],
-  ["executionId2", new WorkoutExecution("executionId2", workouts[0], workoutUser1, {distance: 4500, time: new TimeDelta(32*60*1000), score: 13})],
-  ["executionId3", new WorkoutExecution("executionId3", workouts[1], workoutUser1, {distance: 4500, time: new TimeDelta(32*60*1000), score: 14})],
-  ["executionId4", new WorkoutExecution("executionId4", workouts[1], workoutUser2, {distance: 4500, time: new TimeDelta(32*60*1000), score: 15})],
+const workoutExecutions = new Map<string, WorkoutExecution<MeteorWorkoutResult>>([
+  ["executionId1", new WorkoutExecution("executionId1", workouts[0], workoutUser1, {distance: 4500, time: new TimeDelta(30*60*1000), score: 12, targets: 5})],
+  ["executionId2", new WorkoutExecution("executionId2", workouts[0], workoutUser1, {distance: 4500, time: new TimeDelta(32*60*1000), score: 13, targets: 5})],
+  ["executionId3", new WorkoutExecution("executionId3", workouts[1], workoutUser1, {distance: 4500, time: new TimeDelta(32*60*1000), score: 14, targets: 5})],
+  ["executionId4", new WorkoutExecution("executionId4", workouts[1], workoutUser2, {distance: 4500, time: new TimeDelta(32*60*1000), score: 15, targets: 5})],
 ])
 
 
-export class MockWorkoutExecutionRepository implements WorkoutExecutionRepository{
+export class MockMeteorWorkoutExecutionRepository implements WorkoutExecutionRepository{
 
-  listWorkoutExecutionsForWorkoutSortedByScore(workoutId: string, limit?: number): Array<WorkoutExecution>{
+  listWorkoutExecutionsForWorkoutSortedByScore(workoutId: string, limit?: number): Array<WorkoutExecution<MeteorWorkoutResult>>{
     limit = limit === undefined ? 10 : limit;
 
     return Array.from(workoutExecutions.values()).filter(
@@ -41,11 +41,11 @@ export class MockWorkoutExecutionRepository implements WorkoutExecutionRepositor
     );
   }
   
-  getWorkoutExecution(workoutExecutionId: string): WorkoutExecution | undefined {
+  getWorkoutExecution(workoutExecutionId: string): WorkoutExecution<MeteorWorkoutResult> | undefined {
     return workoutExecutions.get(workoutExecutionId);
   }
 
-  storeWorkoutExecution(workoutExecution: WorkoutExecution): void {
+  storeWorkoutExecution(workoutExecution: WorkoutExecution<MeteorWorkoutResult>): void {
     workoutExecutions.set(workoutExecution.workoutExecutionId, workoutExecution);
   }
 

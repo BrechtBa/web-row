@@ -67,6 +67,12 @@ a {
   background-color: rgba(var(--background-start-rgb), 1.0);
 }
 
+.title {
+  font-size: 2em;
+  text-transform: uppercase;
+  padding: 0.5em;
+}
+
 /* MUI overrides */
 .MuiFormLabel-root {
   color: rgb(var(--primary-text-rgb), 1.0);
