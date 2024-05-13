@@ -1,4 +1,4 @@
-import WorkoutExecutionRepository from './execution/interface';
+import MeteorWorkoutExecutionRepository from './execution/interface';
 import { MockMeteorWorkoutExecutionRepository } from './execution/mockWorkoutExecutionRepository';
 import MeteorWorkoutRepository from './meteor/interface'
 
@@ -10,7 +10,7 @@ export function getMeteorWorkoutRepository(): MeteorWorkoutRepository {
   return repo;
 }
 
-export function getWorkoutExecutionRepository(): WorkoutExecutionRepository {
+export function getWorkoutExecutionRepository(): MeteorWorkoutExecutionRepository {
   const repo = new MockMeteorWorkoutExecutionRepository();
   return repo;
 }

@@ -5,7 +5,7 @@ import { User, Rank } from "@/domain/user";
 import { MeteorWorkoutResult, WorkoutExecution } from "@/domain/workoutExecution";
 
 import MockMeteorWorkoutRepository from '../meteor/mockMeteorWorkoutRepository'
-import WorkoutExecutionRepository from "./interface";
+import MeteorWorkoutExecutionRepository from "./interface";
 
 
 const workouts = new MockMeteorWorkoutRepository().listWorkouts()
@@ -27,7 +27,7 @@ const workoutExecutions = new Map<string, WorkoutExecution<MeteorWorkoutResult>>
 ])
 
 
-export class MockMeteorWorkoutExecutionRepository implements WorkoutExecutionRepository{
+export class MockMeteorWorkoutExecutionRepository implements MeteorWorkoutExecutionRepository{
 
   listWorkoutExecutionsForWorkoutSortedByScore(workoutId: string, limit?: number): Array<WorkoutExecution<MeteorWorkoutResult>>{
     limit = limit === undefined ? 10 : limit;
@@ -48,6 +48,5 @@ export class MockMeteorWorkoutExecutionRepository implements WorkoutExecutionRep
   storeWorkoutExecution(workoutExecution: WorkoutExecution<MeteorWorkoutResult>): void {
     workoutExecutions.set(workoutExecution.workoutExecutionId, workoutExecution);
   }
-
 
 }

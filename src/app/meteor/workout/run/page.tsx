@@ -17,7 +17,7 @@ import { WorkoutOverviewGraph, CurrentScore, SegmentIntervalStats, HighScore, Ti
 import { RankingEntry, RankingHeader } from "@/components/Ranking";
 
 import styles from "./page.module.css";
-import { WorkoutExecution } from '@/domain/workoutExecution';
+import { MeteorWorkoutResult, WorkoutExecution } from '@/domain/workoutExecution';
 import { User } from '@/domain/user';
 
 
@@ -74,7 +74,7 @@ function FinishedMeteorWorkout({workout, user}: {workout: MeteorWorkout, user: U
   
   const [tab, setTab] = useState("RANKING");
 
-  const [workoutExecutions, setWorkoutExecutions] = useState<Array<WorkoutExecution>>([]);
+  const [workoutExecutions, setWorkoutExecutions] = useState<Array<WorkoutExecution<MeteorWorkoutResult>>>([]);
 
   useEffect(() => {
     setWorkoutExecutions(workoutExecutionRepository.listWorkoutExecutionsForWorkoutSortedByScore(workout.workoutData.workoutId));
@@ -106,7 +106,6 @@ function FinishedMeteorWorkout({workout, user}: {workout: MeteorWorkout, user: U
             <WideButton onClick={() => setTab("STATS")}>Your stats</WideButton>
           </div>
         </div>
-        
       )}
 
       { tab === "STATS" && (

@@ -22,7 +22,7 @@ export default function ContextWrapper({children}: {children: ReactNode}) {
       setUser(user);
     });
 
-  }, [userRepository]);
+  }, []);
 
 
   return (

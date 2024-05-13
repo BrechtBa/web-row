@@ -14,7 +14,7 @@ import styles from "./page.module.css";
 import { WideButton } from '@/components/Buttons';
 import { CloseButton } from "@/components/Buttons";
 
-import { WorkoutExecution } from "@/domain/workoutExecution";
+import { WorkoutExecution, MeteorWorkoutResult } from "@/domain/workoutExecution";
 import { TitleBar }  from "@/components/TitleBar";
 import { SimplifiedRankingEntry } from "@/components/Ranking";
 
@@ -28,7 +28,7 @@ export default function Page() {
   const searchParams = useSearchParams();
 
   const [workout, setWorkout] = useState<MeteorWorkoutData | null>(null);
-  const [workoutExecutions, setWorkoutExecutions] = useState<Array<WorkoutExecution>>([]);
+  const [workoutExecutions, setWorkoutExecutions] = useState<Array<WorkoutExecution<MeteorWorkoutResult>>>([]);
 
   useEffect(() => {
     const workoutId = searchParams.get('workout');

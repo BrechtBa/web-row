@@ -31,7 +31,7 @@ export default function Home() {
     userRepository.listLocalUsers().then((users) => {
       setLocalUsers(users)
     });
-  }, [userRepository]);
+  }, []);
 
   return (
     <main style={{height: "100%"}}>
