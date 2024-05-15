@@ -3,7 +3,7 @@ import { WorkoutVelocityHistory, WorkoutExecution, MeteorWorkoutResult } from '@
 import { IntensityZone, IntensityZoneSplits, TimeDelta } from '@/domain/intensityZone'
 import { MeteorWorkoutIntervalDefinition, MeteorWorkoutDefinition, MeteorWorkoutData } from '@/domain/meteor'
 import Rower from '@/rower/interface'
-import { getWorkoutExecutionRepository } from '@/workoutRepository/factory';
+import { getMeteorWorkoutExecutionRepository } from '@/factory';
 import { User } from '@/domain/user';
 
 
@@ -132,7 +132,7 @@ export class MeteorWorkoutTarget {
 
 }
 
-const workoutExecutionRepository = getWorkoutExecutionRepository()
+const workoutExecutionRepository = getMeteorWorkoutExecutionRepository()
 
 
 export class MeteorWorkout {
@@ -202,7 +202,7 @@ export class MeteorWorkout {
   }
 
   start() {
-    this.startDate = new Date(new Date().getTime() + 10000);
+    this.startDate = new Date(new Date().getTime() + 3000);
     this.meteorTrace = [[-50, 0]];
     this.velocityHistory = [];
     this.segments = this._makeSegments(this.workoutData.workoutDefinition, this.intensityZoneSplits);
@@ -227,9 +227,9 @@ export class MeteorWorkout {
         this.finished = true;
 
         workoutExecutionRepository.storeWorkoutExecution(
-          WorkoutExecution.createMeteorWorkout(
-            this.workoutData, 
-            this.user, 
+          WorkoutExecution.createMeteorWorkoutExecution(
+            this.workoutData.workoutId, 
+            this.user.userId, 
             {
               distance: 1234, 
               time: this.totalDuration, 

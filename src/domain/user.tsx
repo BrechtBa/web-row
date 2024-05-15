@@ -15,7 +15,15 @@ export enum Rank {
 }
 
 
-export class User {
+export interface IUser {
+  userId: string;
+  displayName: string;
+  intensityZoneSplits: IntensityZoneSplits;
+  rank: Rank;
+}
+
+
+export class User implements IUser{
   userId: string;
   displayName: string;
   intensityZoneSplits: IntensityZoneSplits;

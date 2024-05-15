@@ -7,7 +7,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 
 
 import { MeteorWorkoutData } from '@/domain/meteor';
-import { getMeteorWorkoutRepository, getWorkoutExecutionRepository } from '@/workoutRepository/factory';
+import { getMeteorWorkoutRepository, getMeteorWorkoutExecutionRepository } from '@/factory';
 import { WorkoutChart } from '../components';
 
 import styles from "./page.module.css";
@@ -17,10 +17,11 @@ import { CloseButton } from "@/components/Buttons";
 import { WorkoutExecution, MeteorWorkoutResult } from "@/domain/workoutExecution";
 import { TitleBar }  from "@/components/TitleBar";
 import { SimplifiedRankingEntry } from "@/components/Ranking";
+import { MeteorWorkoutRankingEntry, meteorWorkoutUseCases } from "./useCases";
 
 
 const workoutRepository = getMeteorWorkoutRepository();
-const workoutExecutionRepository = getWorkoutExecutionRepository();
+const workoutExecutionRepository = getMeteorWorkoutExecutionRepository();
 
 
 export default function Page() {
@@ -28,7 +29,7 @@ export default function Page() {
   const searchParams = useSearchParams();
 
   const [workout, setWorkout] = useState<MeteorWorkoutData | null>(null);
-  const [workoutExecutions, setWorkoutExecutions] = useState<Array<WorkoutExecution<MeteorWorkoutResult>>>([]);
+  const [rankingEntries, setRankingEntries] = useState<Array<MeteorWorkoutRankingEntry>>([]);
 
   useEffect(() => {
     const workoutId = searchParams.get('workout');
@@ -36,7 +37,12 @@ export default function Page() {
       const workout = workoutRepository.getWorkout(workoutId);
       if(workout !== undefined){
         setWorkout(workout);
-        setWorkoutExecutions(workoutExecutionRepository.listWorkoutExecutionsForWorkoutSortedByScore(workout.workoutId));
+
+        meteorWorkoutUseCases.getRankingByWorkoutId(workout.workoutId).then((data) => {
+          setRankingEntries(data);
+        })
+
+
       }
     }
   }, [searchParams]);
@@ -83,8 +89,8 @@ export default function Page() {
           <div>
             <div className={styles.sidePaneTitle}>Ranking</div>
             <div className="rankingContainer">
-              {workoutExecutions.map((workoutExecution, index) => (
-                <SimplifiedRankingEntry key={workoutExecution.workoutExecutionId} rank={index+1} displayName={workoutExecution.user.displayName} score={`${workoutExecution.result.score}`}/>
+              {rankingEntries.map((entry, index) => (
+                <SimplifiedRankingEntry key={entry.workoutExecutionId} rank={index+1} displayName={entry.user.displayName} score={`${entry.result.score}`}/>
               ))}
             </div>
           </div>

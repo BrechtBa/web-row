@@ -7,8 +7,8 @@ import { RowerContext, UserContext } from '@/app/contextProviders';
 
 import Rower from '@/rower/interface';
 import getRower from '@/rower/factory';
+import { getMeteorWorkoutRepository, getMeteorWorkoutExecutionRepository } from '@/factory';
 import { MeteorWorkoutData } from '@/domain/meteor';
-import { getMeteorWorkoutRepository, getWorkoutExecutionRepository } from '@/workoutRepository/factory';
 import { MeteorWorkout, MeteorData } from './domain';
 
 import { PauseButton, WideButton } from '@/components/Buttons';
@@ -19,6 +19,7 @@ import { RankingEntry, RankingHeader } from "@/components/Ranking";
 import styles from "./page.module.css";
 import { MeteorWorkoutResult, WorkoutExecution } from '@/domain/workoutExecution';
 import { User } from '@/domain/user';
+import { MeteorWorkoutRankingEntry, meteorWorkoutUseCases } from '../useCases';
 
 
 
@@ -67,17 +68,18 @@ function RunningMeteorWorkout({workout, meteorData}: {workout: MeteorWorkout, me
   );
 }
 
-const workoutExecutionRepository = getWorkoutExecutionRepository()
 
 
 function FinishedMeteorWorkout({workout, user}: {workout: MeteorWorkout, user: User}) {
   
   const [tab, setTab] = useState("RANKING");
 
-  const [workoutExecutions, setWorkoutExecutions] = useState<Array<WorkoutExecution<MeteorWorkoutResult>>>([]);
+  const [rankingEntries, setRankingEntries] = useState<Array<MeteorWorkoutRankingEntry>>([]);
 
   useEffect(() => {
-    setWorkoutExecutions(workoutExecutionRepository.listWorkoutExecutionsForWorkoutSortedByScore(workout.workoutData.workoutId));
+    meteorWorkoutUseCases.getRankingByWorkoutId(workout.workoutData.workoutId).then((data) => {
+      setRankingEntries(data);
+    })
   }, [workout]);
 
   const router = useRouter();
@@ -94,7 +96,7 @@ function FinishedMeteorWorkout({workout, user}: {workout: MeteorWorkout, user: U
             <div>
               <RankingHeader dataKeys={["Targets", "Score"]}/>
               <div className="rankingContainer">
-                {workoutExecutions.map((workoutExecution, index) => (
+                {rankingEntries.map((workoutExecution, index) => (
                   <RankingEntry key={workoutExecution.workoutExecutionId} rank={index+1} displayName={workoutExecution.user.displayName} 
                                 data={[{key: "score", val: `${workoutExecution.result.score}`}, {key: "score", val: `${workoutExecution.result.score}`}]}/>
                 ))}

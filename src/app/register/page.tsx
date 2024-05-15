@@ -8,7 +8,7 @@ import TextField from "@mui/material/TextField";
 import { WideButton, FloatingCloseButton } from "@/components/Buttons";
 import { VisibilityOff, Visibility } from "@mui/icons-material";
 import { InputAdornment, IconButton } from "@mui/material";
-import getUserRepository from "@/userRepository/factory";
+import getUserRepository from "../../factory";
 
 
 const userRepository = getUserRepository();

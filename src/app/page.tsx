@@ -12,7 +12,7 @@ import { Avatar } from "@/components/Avatar";
 import { UserContext } from "./contextProviders";
 import { WideButton } from "@/components/Buttons";
 import { User, guestUser } from "@/domain/user";
-import getUserRepository from "@/userRepository/factory";
+import getUserRepository from "../factory";
 
 
 const userRepository = getUserRepository();

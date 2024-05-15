@@ -3,7 +3,7 @@ import Link from 'next/link'
 import Grid from '@mui/material/Unstable_Grid2';
 
 import { MeteorWorkoutData } from '@/domain/meteor';
-import { getMeteorWorkoutRepository } from '@/workoutRepository/factory';
+import { getMeteorWorkoutRepository } from '@/factory';
 
 import { WorkoutChart } from './components';
 

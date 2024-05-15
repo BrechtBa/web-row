@@ -1,8 +1,9 @@
 import { Auth, getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, Firestore, collection, getDoc, doc, setDoc, updateDoc, query, getDocs, where  } from 'firebase/firestore/lite';
 
-import { User, guestUser, initialIntensityZoneSplits, initialRank, Rank } from "@/domain/user"
 import { app } from "@/firebase"
+
+import { User, guestUser, initialIntensityZoneSplits, initialRank, Rank } from "@/domain/user"
 import { UserRepository } from "./interface";
 import { IntensityZoneSplits } from "@/domain/intensityZone";
 

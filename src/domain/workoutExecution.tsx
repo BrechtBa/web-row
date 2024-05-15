@@ -1,5 +1,5 @@
 import  { Workout }  from './workout'
-import  { User }  from './user'
+import  { IUser }  from './user'
 import { TimeDelta } from './intensityZone';
 
 
@@ -22,19 +22,19 @@ export interface MeteorWorkoutResult {
 export class WorkoutExecution<Type> {
 
   workoutExecutionId: string;
-  workout: Workout;
-  user: User;
+  workoutId: string;
+  userId: string;
   result: Type;
 
-  constructor(workoutExecutionId: string, workout: Workout, user: User, result: Type) {
+  constructor(workoutExecutionId: string, workoutId: string, userId: string, result: Type) {
     this.workoutExecutionId = workoutExecutionId;
-    this.workout = workout;
-    this.user = user;
+    this.workoutId = workoutId;
+    this.userId = userId;
     this.result = result;
   }
 
-  static createMeteorWorkout(workout: Workout, user: User, result: MeteorWorkoutResult): WorkoutExecution<MeteorWorkoutResult>{
-    return new WorkoutExecution(crypto.randomUUID(), workout, user, result)
+  static createMeteorWorkoutExecution(workoutId: string, userId: string, result: MeteorWorkoutResult): WorkoutExecution<MeteorWorkoutResult>{
+    return new WorkoutExecution(crypto.randomUUID(), workoutId, userId, result);
   }
 }
 

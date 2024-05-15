@@ -4,9 +4,7 @@ import { MeteorWorkoutResult, WorkoutExecution } from '@/domain/workoutExecution
 
 export default interface MeteorWorkoutExecutionRepository {
 
-  listWorkoutExecutionsForWorkoutSortedByScore(workoutId: string, limit?: number): Array<WorkoutExecution<MeteorWorkoutResult>>;
-  
-  getWorkoutExecution(workoutExecutionId: string): WorkoutExecution<MeteorWorkoutResult> | undefined;
+  listWorkoutExecutionsForWorkoutSortedByScore(workoutId: string, limit?: number): Promise<Array<WorkoutExecution<MeteorWorkoutResult>>>;
 
   storeWorkoutExecution(workoutExecution: WorkoutExecution<MeteorWorkoutResult>): void;
 }

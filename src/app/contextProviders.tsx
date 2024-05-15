@@ -3,7 +3,7 @@ import { ReactNode, createContext, SetStateAction, Suspense, useState, useEffect
 
 import { RowerType } from "@/rower/factory";
 import { User, guestUser } from '@/domain/user';
-import getUserRepository from '@/userRepository/factory';
+import getUserRepository from "../factory";
 
 
 export const RowerContext = createContext({rowerType: RowerType.Tap, setRowerType: (value: SetStateAction<RowerType>) => {}});
