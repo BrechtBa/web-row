@@ -17,18 +17,30 @@ export class MeteorWorkoutIntervalDefinition {
   intensityZone: IntensityZone;
   targets: Array<{time: TimeDelta, target: MeteorWorkoutTargetDefinition}>
 
-  constructor (duration: TimeDelta, intensityZone: IntensityZone, targets: Array<{time: TimeDelta, target: MeteorWorkoutTargetDefinition}>) {
+  constructor (duration: TimeDelta, intensityZone: IntensityZone, targets?: Array<{time: TimeDelta, target: MeteorWorkoutTargetDefinition}>) {
     this.duration = duration;
     this.intensityZone = intensityZone;
-    this.targets = targets;
+    this.targets = targets === undefined ? this.makeTargets(duration, intensityZone) : targets;
+  }
+
+  makeTargets(duration: TimeDelta, intensityZone: IntensityZone): Array<{time: TimeDelta, target: MeteorWorkoutTargetDefinition}>{
+    let targets: Array<{time: TimeDelta, target: MeteorWorkoutTargetDefinition}> = []
+
+    let spacing = 4000 - intensityZone.valueOf() * 400; 
+
+    for(var time = 6000; time < duration.timeDeltaMs - 2000; time += spacing){
+      targets.push({time: new TimeDelta(time), target: new MeteorWorkoutTargetDefinition(intensityZone.valueOf())});
+    }
+
+    return targets;
   }
 
   updateIntensityZone(intensityZone: IntensityZone): MeteorWorkoutIntervalDefinition {
-    return new MeteorWorkoutIntervalDefinition(this.duration, intensityZone, this.targets);
+    return new MeteorWorkoutIntervalDefinition(this.duration, intensityZone, this.makeTargets(this.duration, this.intensityZone));
   }
 
   updateDuration(duration: TimeDelta): MeteorWorkoutIntervalDefinition {
-    return new MeteorWorkoutIntervalDefinition(duration, this.intensityZone, this.targets);
+    return new MeteorWorkoutIntervalDefinition(duration, this.intensityZone, this.makeTargets(this.duration, this.intensityZone));
   }
 }
 

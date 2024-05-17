@@ -16,7 +16,7 @@ import { meteorWorkoutUseCases } from "../workout/useCases";
 export default function CreateMeteorWorkout() {
 
   const [workout, setWorkout] = useState<MeteorWorkout>(MeteorWorkout.create("", "", new MeteorWorkoutDefinition([
-    new MeteorWorkoutIntervalDefinition(new TimeDelta(20000), IntensityZone.Paddle, [])
+    new MeteorWorkoutIntervalDefinition(new TimeDelta(20000), IntensityZone.Paddle)
   ])))
 
   const router = useRouter();
@@ -27,17 +27,8 @@ export default function CreateMeteorWorkout() {
       interval: interval
     }))
   }
-
-  const updateInterval = ( index: number, interval: MeteorWorkoutIntervalDefinition ) => {
-    console.log(index, interval)
-    const updater = ( workout: MeteorWorkout ) => {
-      workout.workoutDefinition.segments[index] = interval;
-      console.log(workout)
-      return workout;
-    }
-    console.log(updater);
-    return updater;
-  }
+  
+  console.log(workout)
 
   return (
     <main style={{width: "100%", height: "100%", display: "flex", flexDirection: "column"}}>
@@ -60,13 +51,13 @@ export default function CreateMeteorWorkout() {
         <div style={{display: "flex", flexDirection: "column", gap: "1em"}}>
           {makeIntervals(workout).map(interval => (
             <div key={interval.key} style={{display: "flex", flexDirection: "row", gap: "1em"}}>
-              <TextField label="Duration" value={interval.interval.duration.timeDeltaMs/1000} onChange={(e) => {setWorkout(workout.updateInterval(interval.key, interval.interval.updateDuration(new TimeDelta(e.target.value * 1000))))}}/>
+              <TextField label="Duration" value={interval.interval.duration.timeDeltaMs/1000} onChange={(e) => {setWorkout(workout.updateInterval(interval.key, interval.interval.updateDuration(new TimeDelta(parseInt(e.target.value) * 1000))))}}/>
               <IntensityZoneSelect intensityZone={interval.interval.intensityZone} setIntensityZone={(intensityZone) => setWorkout(workout.updateInterval(interval.key, interval.interval.updateIntensityZone(intensityZone)))}/>
             </div>
           ))}
         </div>
         <div style={{height: "2em"}}>
-          <AddButton onClick={()=> {setWorkout(workout.addInterval(new MeteorWorkoutIntervalDefinition(new TimeDelta(30000), IntensityZone.Paddle, []) ))}}></AddButton>
+          <AddButton onClick={()=> {setWorkout(workout.addInterval(new MeteorWorkoutIntervalDefinition(new TimeDelta(30000), IntensityZone.Paddle)))}}></AddButton>
         </div>
 
       </div>
