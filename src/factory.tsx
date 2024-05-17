@@ -1,15 +1,13 @@
-import MeteorWorkoutExecutionRepository from './workoutRepository/execution/interface';
-import { FirebaseMeteorWorkoutExecutionRepository } from './workoutRepository/execution/firebaseWorkoutExecutionRepository';
-import MeteorWorkoutRepository from './workoutRepository/meteor/interface'
-
-import MockMeteorWorkoutRepository from './workoutRepository/meteor/mockMeteorWorkoutRepository'
-import { FirebaseUserRepository } from '@/userRepository/firebase';
+import { MeteorWorkoutRepository, MeteorWorkoutExecutionRepository } from './workoutRepository/meteor/interface';
 import { UserRepository } from '@/userRepository/interface';
+
+import { FirebaseMeteorWorkoutExecutionRepository } from './workoutRepository/meteor/firebaseMeteorWorkoutExecutionRepository';
+import { FirebaseMeteorWorkoutRepository } from './workoutRepository/meteor/firebaseMeteorWorkoutRepository';
+import { FirebaseUserRepository } from '@/userRepository/firebase';
 
 
 export function getMeteorWorkoutRepository(): MeteorWorkoutRepository {
-  const repo = new MockMeteorWorkoutRepository();
-  return repo;
+  return new FirebaseMeteorWorkoutRepository();
 }
 
 export default function getUserRepository(): UserRepository {
@@ -18,7 +16,6 @@ export default function getUserRepository(): UserRepository {
 
 
 export function getMeteorWorkoutExecutionRepository(): MeteorWorkoutExecutionRepository {
-  const repo = new FirebaseMeteorWorkoutExecutionRepository();
-  return repo;
+  return new FirebaseMeteorWorkoutExecutionRepository();
 }
 

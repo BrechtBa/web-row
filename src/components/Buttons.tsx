@@ -1,5 +1,6 @@
 import ClearIcon from '@mui/icons-material/Clear';
 import PauseIcon from '@mui/icons-material/Pause';
+import AddIcon from '@mui/icons-material/Add';
 import React from "react";
 
 
@@ -32,6 +33,14 @@ export function PauseButton({onClick}: {onClick?: (e?: object) => void}) {
   );
 }
 
+export function AddButton({onClick}: {onClick?: (e?: object) => void}) {
+ 
+  return (
+    <div onClick={onClick} style={{cursor: "pointer", height: "100%"}}>
+      <AddIcon sx={{height: "100%", width: "auto", color: "rgba(var(--secondary-text-rgb), 0.6)"}} />
+    </div>
+  );
+}
 
 export function WideButton({ onClick, children }: { onClick?: (e?: object) => void; children: React.ReactNode; }) {
 

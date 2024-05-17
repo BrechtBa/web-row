@@ -1,12 +1,22 @@
 
-import { MeteorWorkoutData } from '@/domain/meteor'
+import { MeteorWorkout } from '@/domain/meteor'
+import { WorkoutExecution, MeteorWorkoutResult } from '@/domain/workoutExecution';
 
 
 
-export default interface MeteorWorkoutRepository {
+export interface MeteorWorkoutRepository {
 
-  listWorkouts(): Array<MeteorWorkoutData>;
+  listWorkouts(limit?: number, offset? : number): Promise<Array<MeteorWorkout>>;
 
-  getWorkout(workoutId: string): MeteorWorkoutData | undefined ;
+  getWorkoutByWorkoutId(workoutId: string): Promise<MeteorWorkout | undefined>;
 
+  storeWorkout(workout: MeteorWorkout): void;
+
+}
+
+export interface MeteorWorkoutExecutionRepository {
+
+  listWorkoutExecutionsForWorkoutSortedByScore(workoutId: string, limit?: number): Promise<Array<WorkoutExecution<MeteorWorkoutResult>>>;
+
+  storeWorkoutExecution(workoutExecution: WorkoutExecution<MeteorWorkoutResult>): void;
 }

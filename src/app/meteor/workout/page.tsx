@@ -6,7 +6,7 @@ import Link from "next/link";
 import Grid from '@mui/material/Unstable_Grid2';
 
 
-import { MeteorWorkoutData } from '@/domain/meteor';
+import { MeteorWorkout } from '@/domain/meteor';
 import { getMeteorWorkoutRepository, getMeteorWorkoutExecutionRepository } from '@/factory';
 import { WorkoutChart } from '../components';
 
@@ -28,22 +28,23 @@ export default function Page() {
 
   const searchParams = useSearchParams();
 
-  const [workout, setWorkout] = useState<MeteorWorkoutData | null>(null);
+  const [workout, setWorkout] = useState<MeteorWorkout | null>(null);
   const [rankingEntries, setRankingEntries] = useState<Array<MeteorWorkoutRankingEntry>>([]);
 
   useEffect(() => {
     const workoutId = searchParams.get('workout');
     if(workoutId !== null) {
-      const workout = workoutRepository.getWorkout(workoutId);
-      if(workout !== undefined){
-        setWorkout(workout);
+      meteorWorkoutUseCases.getWorkoutById(workoutId).then(workout => {
+        if(workout !== undefined) {
+          console.log(workout)
+          setWorkout(workout);
 
-        meteorWorkoutUseCases.getRankingByWorkoutId(workout.workoutId).then((data) => {
-          setRankingEntries(data);
-        })
+          meteorWorkoutUseCases.getRankingByWorkoutId(workout.workoutId).then((data) => {
+            setRankingEntries(data);
+          })
 
-
-      }
+        }
+      })
     }
   }, [searchParams]);
 
@@ -64,7 +65,7 @@ export default function Page() {
         <div style={{display: "flex", flexDirection: "column", flexGrow: 3}}>
           <div style={{padding: "1em"}}>
             <div className={styles.workoutChart} >
-              <WorkoutChart workout={workout.workoutDefinition}/>
+              <WorkoutChart workout={workout.workoutDefinition} height={200}/>
             </div>
             <div className={styles.workoutInfo} style={{position: "absolute", bottom: 0, left: 0}}>
               <div className={styles.workoutDescription}>

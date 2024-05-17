@@ -22,6 +22,14 @@ export class MeteorWorkoutIntervalDefinition {
     this.intensityZone = intensityZone;
     this.targets = targets;
   }
+
+  updateIntensityZone(intensityZone: IntensityZone): MeteorWorkoutIntervalDefinition {
+    return new MeteorWorkoutIntervalDefinition(this.duration, intensityZone, this.targets);
+  }
+
+  updateDuration(duration: TimeDelta): MeteorWorkoutIntervalDefinition {
+    return new MeteorWorkoutIntervalDefinition(duration, this.intensityZone, this.targets);
+  }
 }
 
 
@@ -39,9 +47,21 @@ export class MeteorWorkoutDefinition {
   getSegments(): Array<MeteorWorkoutIntervalDefinition> {
     return this.segments;
   }
+
+  updateInterval(index: number, interval: MeteorWorkoutIntervalDefinition): MeteorWorkoutDefinition {
+    let intervals = [...this.segments];
+    intervals[index] = interval
+    return new MeteorWorkoutDefinition(intervals);
+  }
+
+  addInterval(interval: MeteorWorkoutIntervalDefinition): MeteorWorkoutDefinition {
+    let intervals = [...this.segments];
+    intervals.push(interval)
+    return new MeteorWorkoutDefinition(intervals);
+  }
 }
 
-export class MeteorWorkoutData implements Workout {
+export class MeteorWorkout implements Workout {
   workoutId: string
   title: string
   description: string
@@ -53,5 +73,24 @@ export class MeteorWorkoutData implements Workout {
     this.description = description
     this.workoutDefinition = workoutDefinition;
   }
+  
+  static create(title: string, description: string, workoutDefinition: MeteorWorkoutDefinition): MeteorWorkout {
+    return new MeteorWorkout(crypto.randomUUID(), title, description, workoutDefinition)
+  }
 
+  updateTitle(title: string): MeteorWorkout {
+    return new MeteorWorkout(this.workoutId, title, this.description, this.workoutDefinition);
+  }
+
+  updateDescription(description: string): MeteorWorkout {
+    return new MeteorWorkout(this.workoutId, this.title, description, this.workoutDefinition);
+  }
+
+  updateInterval(index: number, interval: MeteorWorkoutIntervalDefinition): MeteorWorkout {
+    return new MeteorWorkout(this.workoutId, this.title, this.description, this.workoutDefinition.updateInterval(index, interval));
+  }
+
+  addInterval(interval: MeteorWorkoutIntervalDefinition): MeteorWorkout {
+    return new MeteorWorkout(this.workoutId, this.title, this.description, this.workoutDefinition.addInterval(interval));
+  }
 }

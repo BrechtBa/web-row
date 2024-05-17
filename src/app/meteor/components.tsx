@@ -7,9 +7,9 @@ import { MeteorWorkoutIntervalDefinition, MeteorWorkoutDefinition } from '../../
 import styles from "./page.module.css";
 
 
-export function WorkoutChart({workout}: {workout: MeteorWorkoutDefinition}){
+export function WorkoutChart({workout, height}: {workout: MeteorWorkoutDefinition, height: number}){
   const segmentHeight = (interval: MeteorWorkoutIntervalDefinition): number => {
-    return 200 - interval.intensityZone * 40
+    return height - interval.intensityZone * 0.2 * height
   }
   const totalWorkoutDuration = workout.getTotalDuration();
 
@@ -42,7 +42,7 @@ export function WorkoutChart({workout}: {workout: MeteorWorkoutDefinition}){
 
   return (
     <div style={{display: "flex", width: "100%"}}>
-      <svg width="100%" viewBox="0 0 1000 300" xmlns="http://www.w3.org/2000/svg">
+      <svg width="100%" viewBox={`0 0 1000 ${1.5*height}`} xmlns="http://www.w3.org/2000/svg">
         <path id="OverviewGraph" className={styles.workoutChartLine} fill="none"
            d={calculatePath(workout)} />
       </svg>

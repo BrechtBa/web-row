@@ -1,10 +1,9 @@
+import { MeteorWorkout } from "@/domain/meteor";
 import { User } from "@/domain/user";
-import { Workout } from "@/domain/workout";
 import { MeteorWorkoutResult } from "@/domain/workoutExecution";
-import getUserRepository, { getMeteorWorkoutExecutionRepository } from "@/factory";
+import getUserRepository, { getMeteorWorkoutExecutionRepository, getMeteorWorkoutRepository } from "@/factory";
 import { UserRepository } from "@/userRepository/interface";
-import MeteorWorkoutExecutionRepository from "@/workoutRepository/execution/interface";
-import MeteorWorkoutRepository from "@/workoutRepository/meteor/interface";
+import { MeteorWorkoutExecutionRepository, MeteorWorkoutRepository } from '@/workoutRepository/meteor/interface';
 
 export interface MeteorWorkoutRankingEntry {
   workoutExecutionId: string
@@ -14,10 +13,12 @@ export interface MeteorWorkoutRankingEntry {
 
 
 class MeteorWorkoutUseCases{
+  workoutRepository: MeteorWorkoutRepository;
   workoutExecutionRepository: MeteorWorkoutExecutionRepository;
   userRepository: UserRepository;
 
-  constructor(workoutExecutionRepository: MeteorWorkoutExecutionRepository, userRepository: UserRepository){
+  constructor(workoutRepository: MeteorWorkoutRepository, workoutExecutionRepository: MeteorWorkoutExecutionRepository, userRepository: UserRepository){
+    this.workoutRepository = workoutRepository;
     this.workoutExecutionRepository = workoutExecutionRepository;
     this.userRepository = userRepository;
   }
@@ -48,8 +49,18 @@ class MeteorWorkoutUseCases{
     return new Promise((resolve) => resolve(rankingEntries));
   }
 
+  async listWorkouts(): Promise<Array<MeteorWorkout>> {
+    return this.workoutRepository.listWorkouts();
+  }
+
+  async getWorkoutById(workoutId: string): Promise<MeteorWorkout | undefined> {
+    return this.workoutRepository.getWorkoutByWorkoutId(workoutId)
+  }
+  async storeWorkout(workout: MeteorWorkout) {
+    this.workoutRepository.storeWorkout(workout)
+  }
 }
 
 export const meteorWorkoutUseCases = new MeteorWorkoutUseCases(
-  getMeteorWorkoutExecutionRepository(), getUserRepository()
+  getMeteorWorkoutRepository(), getMeteorWorkoutExecutionRepository(), getUserRepository()
 )

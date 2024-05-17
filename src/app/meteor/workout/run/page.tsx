@@ -8,8 +8,8 @@ import { RowerContext, UserContext } from '@/app/contextProviders';
 import Rower from '@/rower/interface';
 import getRower from '@/rower/factory';
 import { getMeteorWorkoutRepository, getMeteorWorkoutExecutionRepository } from '@/factory';
-import { MeteorWorkoutData } from '@/domain/meteor';
-import { MeteorWorkout, MeteorData } from './domain';
+import { MeteorWorkout } from '@/domain/meteor';
+import { MeteorWorkoutRun, MeteorData } from './domain';
 
 import { PauseButton, WideButton } from '@/components/Buttons';
 import { WorkoutVelocityChart } from '@/components/WorkoutVelocityChart';
@@ -23,7 +23,7 @@ import { MeteorWorkoutRankingEntry, meteorWorkoutUseCases } from '../useCases';
 
 
 
-function RunningMeteorWorkout({workout, meteorData}: {workout: MeteorWorkout, meteorData: MeteorData}) {
+function RunningMeteorWorkout({workout, meteorData}: {workout: MeteorWorkoutRun, meteorData: MeteorData}) {
 
   return (
     <div style={{width: "100%", height: "100%", display: "flex", flexDirection: "column"}}>
@@ -70,7 +70,7 @@ function RunningMeteorWorkout({workout, meteorData}: {workout: MeteorWorkout, me
 
 
 
-function FinishedMeteorWorkout({workout, user}: {workout: MeteorWorkout, user: User}) {
+function FinishedMeteorWorkout({workout, user}: {workout: MeteorWorkoutRun, user: User}) {
   
   const [tab, setTab] = useState("RANKING");
 
@@ -148,9 +148,9 @@ export default function Page() {
   const searchParams = useSearchParams();
 
   const [rower, setRower] = useState<Rower | null>(null);
-  const [workoutData, setWorkoutData] = useState<MeteorWorkoutData | null>(null);
-  const [workout, setWorkout] = useState<MeteorWorkout | null>(null);
-  const [meteorData, setMeteorData] = useState<MeteorData>(MeteorWorkout.getInitialData());
+  const [workoutData, setWorkoutData] = useState<MeteorWorkout | null>(null);
+  const [workout, setWorkout] = useState<MeteorWorkoutRun | null>(null);
+  const [meteorData, setMeteorData] = useState<MeteorData>(MeteorWorkoutRun.getInitialData());
   const [timeToStart, setTimeToStart] = useState<number>(10);
   const [workoutFinished, setWorkoutFinished] = useState<boolean>(false);
   const [workoutStopped, setWorkoutStopped] = useState<boolean>(false);
@@ -174,11 +174,12 @@ export default function Page() {
   useEffect(() => {
     const workoutId = searchParams.get('workout');
     if(workoutId !== null) {
-      const workoutData = workoutRepository.getWorkout(workoutId);
-      if( workoutData !== undefined ){
-        setWorkoutData(workoutData);
-        setWorkout(new MeteorWorkout(workoutData, user));
-      }
+      meteorWorkoutUseCases.getWorkoutById(workoutId).then(workout => {
+        if( workout !== undefined ){
+          setWorkoutData(workout);
+          setWorkout(new MeteorWorkoutRun(workout, user));
+        }
+      })
     }
   }, [searchParams, user]);
 

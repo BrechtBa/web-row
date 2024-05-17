@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
 
-import { MeteorWorkout, MeteorWorkoutSegment, MeteorWorkoutTarget } from './domain';
+import { MeteorWorkoutRun, MeteorWorkoutSegment, MeteorWorkoutTarget } from './domain';
 
 import styles from "./page.module.css";
 import { range, TimeDelta } from '@/domain/intensityZone';
@@ -169,7 +169,7 @@ function Target({distance, velocity, points, caught, distanceToPixels, velocityT
 }
 
 export function GameArea({workout, meteorDistance, instantaneousVelocity, meteorTrace, meteorBoundsTrace, targets}: 
-                         {workout: MeteorWorkout | null, meteorDistance: number, instantaneousVelocity: number, meteorTrace: Array<Array<number>>, 
+                         {workout: MeteorWorkoutRun | null, meteorDistance: number, instantaneousVelocity: number, meteorTrace: Array<Array<number>>, 
                     meteorBoundsTrace: Array<{distance: number, min: number, max: number}>, targets: Array<MeteorWorkoutTarget>}) {
   const screenWidthDistance = 10;
   const gridWidthDistance = 1;
@@ -224,7 +224,7 @@ export function GameArea({workout, meteorDistance, instantaneousVelocity, meteor
 }
 
 
-export function WorkoutOverviewGraph({workout, time}: {workout: MeteorWorkout, time: TimeDelta}) {
+export function WorkoutOverviewGraph({workout, time}: {workout: MeteorWorkoutRun, time: TimeDelta}) {
   const segmentHeight = (segment: MeteorWorkoutSegment): number => {
     return 50 - segment.intensityZone * 10
   }
@@ -234,7 +234,7 @@ export function WorkoutOverviewGraph({workout, time}: {workout: MeteorWorkout, t
     return duration.timeDeltaMs / totalWorkoutDuration.timeDeltaMs * 1000 ;
   }
 
-  const calculatePath = (workout: MeteorWorkout, time?: TimeDelta): string => {
+  const calculatePath = (workout: MeteorWorkoutRun, time?: TimeDelta): string => {
 
     let timeDeltaMs: number = 0
     let d: string = "";

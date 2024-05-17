@@ -6,8 +6,7 @@ import { TimeDelta, IntensityZone } from "@/domain/intensityZone";
 import { User, Rank } from "@/domain/user";
 import { MeteorWorkoutResult, WorkoutExecution } from "@/domain/workoutExecution";
 
-import MeteorWorkoutExecutionRepository from "./interface";
-import { UserRepository } from '@/userRepository/interface';
+import { MeteorWorkoutExecutionRepository } from './interface';
 
 
 const undefinedUser = new User(
@@ -42,7 +41,7 @@ export class FirebaseMeteorWorkoutExecutionRepository implements MeteorWorkoutEx
     const q = query(
       collection(this.firestore, "meteorWorkoutExecutions"), 
       where("workoutId", "==", workoutId), 
-      orderBy("resultScore"), 
+      orderBy("resultScore", "desc"), 
       limit(lim),
     );
     const querySnapshot = await getDocs(q);
@@ -83,5 +82,4 @@ export class FirebaseMeteorWorkoutExecutionRepository implements MeteorWorkoutEx
       }
     )
   }
-
 }

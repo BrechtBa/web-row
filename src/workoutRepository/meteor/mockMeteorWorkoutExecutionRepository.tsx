@@ -1,11 +1,11 @@
 import { TimeDelta, IntensityZone, IntensityZoneSplits } from "@/domain/intensityZone";
-import { MeteorWorkoutData, MeteorWorkoutDefinition, MeteorWorkoutIntervalDefinition } from "@/domain/meteor";
+import { MeteorWorkout, MeteorWorkoutDefinition, MeteorWorkoutIntervalDefinition } from "@/domain/meteor";
 import { Workout } from "@/domain/workout";
 import { User, Rank } from "@/domain/user";
 import { MeteorWorkoutResult, WorkoutExecution } from "@/domain/workoutExecution";
 
-import MockMeteorWorkoutRepository from '../meteor/mockMeteorWorkoutRepository'
-import MeteorWorkoutExecutionRepository from "./interface";
+import MockMeteorWorkoutRepository from './mockMeteorWorkoutRepository'
+import { MeteorWorkoutExecutionRepository } from './interface';
 
 
 const workouts = new MockMeteorWorkoutRepository().listWorkouts()
